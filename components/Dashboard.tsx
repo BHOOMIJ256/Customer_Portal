@@ -199,10 +199,12 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
             </div>
           ) : (
             <div className="animate-in fade-in duration-300">
-              <div className="mb-8 px-1">
-                <h3 className="text-2xl font-black text-[#F5F7FA] font-rubik">{activeSegment}</h3>
-                <p className="text-sm text-[#A0AEC0] mt-1">Manage all your {activeSegment.toLowerCase()} related to this project.</p>
-              </div>
+              {activeSegment !== 'Consultation' && (
+                <div className="mb-8 px-1">
+                  <h3 className="text-2xl font-black text-[#F5F7FA] font-rubik">{activeSegment}</h3>
+                  <p className="text-sm text-[#A0AEC0] mt-1">Manage all your {activeSegment.toLowerCase()} related to this project.</p>
+                </div>
+              )}
               <SegmentContent type={activeSegment} />
             </div>
           )}

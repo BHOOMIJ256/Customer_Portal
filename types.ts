@@ -33,10 +33,17 @@ export interface AppUser {
 }
 
 export interface ConsultationSession {
+  id: string;
   phone_no: string;
   topic: string;
   date: string;
+  time: string;
+  duration: string; // e.g., "30 mins", "1 hour"
   status: 'Scheduled' | 'Completed' | 'Pending';
+  type: 'Online' | 'In-Person';
+  meeting_link?: string;
+  notes?: string;
+  requested_by: 'admin' | 'client';
 }
 
 export interface Invoice {
