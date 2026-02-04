@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import Logo from './Logo';
+import Logo from '../components/Logo';
 
 interface LoginProps {
   onLogin: (phone: string) => void;
@@ -26,7 +26,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <h2 className="text-2xl font-bold text-[#F5F7FA] tracking-tight font-rubik">Welcome Home</h2>
           <p className="mt-2 text-sm text-[#A0AEC0] font-medium">Enter your registered mobile number to login</p>
         </div>
-        
+
         <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="phone" className="block text-xs font-bold text-[#A0AEC0] uppercase tracking-widest mb-2 ml-1">Phone Number</label>
@@ -49,7 +49,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             Access Dashboard
           </button>
         </form>
-        
+
         <div className="text-center text-[11px] text-[#A0AEC0] font-black uppercase tracking-widest mt-4">
           Architecture • Interior • Landscape
         </div>

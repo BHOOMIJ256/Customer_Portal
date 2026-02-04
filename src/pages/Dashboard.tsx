@@ -1,15 +1,15 @@
 
 import React, { useState } from 'react';
 import { User, ProjectStage, SegmentType } from '../types';
-import SegmentLinks from './SegmentLinks';
-import SegmentContent from './SegmentContent';
-import Timeline from './Timeline';
-import SearchBar from './SearchBar';
-import EstimateModal from './EstimateModal';
-import DesignModal from './DesignModal';
-import PaymentModal from './PaymentModal';
-import Logo from './Logo';
-import ClientList from './ClientList';
+import SegmentLinks from '../components/SegmentLinks';
+import SegmentContent from '../components/SegmentContent';
+import Timeline from '../components/Timeline';
+import SearchBar from '../components/SearchBar';
+import EstimateModal from '../components/modals/EstimateModal';
+import DesignModal from '../components/modals/DesignModal';
+import PaymentModal from '../components/modals/PaymentModal';
+import Logo from '../components/Logo';
+import ClientList from '../components/ClientList';
 
 interface DashboardProps {
   user: User;
