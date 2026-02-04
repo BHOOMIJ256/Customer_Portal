@@ -1,32 +1,33 @@
 
-import React from 'react';
+import { Opportunity } from '../../types';
 
 interface EstimateModalProps {
   isOpen: boolean;
   onClose: () => void;
   onApprove: () => void;
+  opportunity: Opportunity | null;
 }
 
-const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprove }) => {
+const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprove, opportunity }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
         onClick={onClose}
       ></div>
-      
+
       {/* Modal Content */}
       <div className="relative w-full max-w-lg bg-[#2E2B38] border border-[#4A4A5A] rounded-[2.5rem] shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300 overflow-hidden">
         <div className="p-8">
           <div className="flex justify-between items-start mb-8">
             <div>
               <h2 className="text-2xl font-bold text-[#F5F7FA] font-rubik">Project Estimate</h2>
-              <p className="text-[#A0AEC0] text-sm mt-1">Ref: #HR-2024-082 • Oct 24, 2023</p>
+              <p className="text-[#A0AEC0] text-sm mt-1">Ref: {opportunity?.id || '#HR-PENDING'} • {opportunity?.date_prepared || 'In Review'}</p>
             </div>
-            <button 
+            <button
               onClick={onClose}
               className="p-2 hover:bg-[#24212b] rounded-full text-[#A0AEC0] transition-colors"
             >
@@ -62,14 +63,14 @@ const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprov
               </div>
               <div className="mt-6 pt-6 border-t border-[#4A4A5A] flex justify-between items-center">
                 <span className="text-[#F5F7FA] font-bold">Total Estimate</span>
-                <span className="text-[#fafa33] text-2xl font-black font-rubik">₹4,50,000</span>
+                <span className="text-[#fafa33] text-2xl font-black font-rubik">₹{(opportunity?.booking_amount || 450000).toLocaleString()}</span>
               </div>
             </div>
 
             <div className="text-center px-4">
-              <a 
-                href="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" 
-                target="_blank" 
+              <a
+                href="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center text-[#A0AEC0] hover:text-[#fafa33] text-sm font-bold transition-colors group"
               >
@@ -84,13 +85,13 @@ const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprov
         </div>
 
         <div className="p-8 bg-[#24212b]/50 border-t border-[#4A4A5A] flex flex-col sm:flex-row gap-4">
-          <button 
+          <button
             onClick={onClose}
             className="flex-1 px-8 py-4 rounded-2xl bg-[#2E2B38] border border-[#4A4A5A] text-[#F5F7FA] font-bold hover:bg-[#393645] transition-all font-rubik"
           >
             Later
           </button>
-          <button 
+          <button
             onClick={onApprove}
             className="flex-1 px-8 py-4 rounded-2xl bg-[#fafa33] text-[#24212b] font-black hover:bg-[#ffff4d] transition-all shadow-lg shadow-[#fafa33]/10 font-rubik"
           >

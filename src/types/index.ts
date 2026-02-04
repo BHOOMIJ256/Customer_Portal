@@ -1,93 +1,92 @@
 
 export enum ProjectStage {
   LEAD_COLLECTED = 'Lead Collected',
-  CONTACTED = 'Contacted',
-  SITE_VISIT = 'Site Visit / Analysis',
   ESTIMATE_PROVIDED = 'Estimate Provided',
   DESIGN_PHASE = 'Design Phase',
   BOOKING_PAYMENT = 'Booking Payment',
   AGREEMENT_SIGNED = 'Agreement Signed',
   PROJECT_STARTED = 'Project Started',
   IN_PROGRESS = 'In Progress',
-  FINAL_HANDOVER = 'Final Handover'
+  SHIPPING_REQUEST = 'Shipping Request',
+  SHIPPED = 'Shipped',
+  INSTALLATION = 'Installation',
+  POST_INSTALLATION = 'Post-Installation',
+  COMPLETED = 'Project Completed'
 }
 
 export interface User {
   name: string;
   phoneNumber: string;
-  currentStage: ProjectStage;
-  lastUpdate: string;
-  role: 'admin' | 'client';
+  role: 'admin' | 'client' | 'architect';
+  currentStage?: ProjectStage;
+  lastUpdate?: string;
 }
 
-// -- Google Sheets Data Models --
-
 export interface HritaUser {
-  phone_no: string;
-  fullname: string;
+  phone_number: string;
+  name: string;
 }
 
 export interface AppUser {
-  phone_no: string;
-  fullname: string;
-}
-
-export interface ConsultationSession {
-  phone_no: string;
-  topic: string;
-  date: string;
-  status: 'Scheduled' | 'Completed' | 'Pending';
-}
-
-export interface Invoice {
-  id: string;
-  date: string;
-  description: string;
-  amount: number;
-  status: 'Paid' | 'Due' | 'Overdue';
-  docs: string; // URL to PDF
+  phone_number: string;
+  name: string;
 }
 
 export interface Opportunity {
-  id: string; // Estimate ID
-  phone_no: string;
-  stage: ProjectStage;
+  id: string;
+  phone_number: string;
+  date_requested: string;
+  date_prepared: string;
+  date_approved: string;
+  booking_amount: number;
+  paid_amount: number;
+  payment_due: number;
+  status: ProjectStage | string;
+  estimate_views: string; // comma separated phone numbers
+}
+
+export interface Invoice {
+  phone_number: string;
+  id: string;
+  description: string;
+  date: string;
+  amount: number;
 }
 
 export interface Payment {
-  invoices_id: string;
-  docs: string; // URL to Receipt
-}
-
-export interface Ticket {
-  subject: string;
+  phone_number: string;
+  invoice_id: string;
   description: string;
+  amount: number;
+  status: 'Paid' | 'Pending' | 'Due';
   date: string;
-  status: 'Open' | 'Resolved' | 'In Progress';
-  resolution?: string;
 }
 
 export interface OtherDocument {
-  name: string;
-  type: string;
+  phone_number: string;
+  subject: string;
+  description: string;
   url: string;
 }
 
-export interface Client {
-  id: string;
-  name: string;
-  phoneNumber: string;
-  currentStage: ProjectStage;
-  lastUpdate: string;
-  location: string;
-  actionNeeded?: string;
+export interface ConsultationSession {
+  phone_number: string;
+  subject: string;
+  description: string;
+  date: string;
+  time: string;
+  status: 'Scheduled' | 'Completed' | 'Pending';
+  consultant: string;
 }
 
-export interface TimelineEvent {
-  stage: ProjectStage;
-  isCompleted: boolean;
-  isCurrent: boolean;
-  date?: string;
+export interface PortalData {
+  user: User;
+  opportunities: Opportunity[];
+  invoices: Invoice[];
+  payments: Payment[];
+  documents: OtherDocument[];
+  consultations: ConsultationSession[];
+  allClients?: User[]; // For admin view
 }
 
 export type SegmentType = 'Recents' | 'Consultation' | 'Payments' | 'Invoices' | 'My Documents' | 'Tickets';

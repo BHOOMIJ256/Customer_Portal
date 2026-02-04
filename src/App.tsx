@@ -17,18 +17,15 @@ const App: React.FC = () => {
   }, []);
 
   const handleLogin = (phoneNumber: string) => {
-    // Starting the story from Estimate Provided as per user flow
-    const isAdmin = phoneNumber === '9999999999'; // Hardcoded Admin Check
+    const isAdmin = phoneNumber === '000000000' || phoneNumber === '0000000000';
 
-    const mockUser: User = {
-      name: isAdmin ? "Hrita Admin" : "Abhishek Sharma",
+    const user: User = {
+      name: isAdmin ? "Hrita Admin" : "Loading...",
       phoneNumber: phoneNumber,
-      currentStage: ProjectStage.ESTIMATE_PROVIDED,
-      lastUpdate: new Date().toLocaleDateString(),
       role: isAdmin ? 'admin' : 'client'
     };
-    setUser(mockUser);
-    localStorage.setItem('hrita_user', JSON.stringify(mockUser));
+    setUser(user);
+    localStorage.setItem('hrita_user', JSON.stringify(user));
   };
 
   const handleLogout = () => {

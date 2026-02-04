@@ -1,12 +1,12 @@
 
-import React from 'react';
-import { SegmentType } from '../types';
+import { SegmentType, PortalData } from '../types';
 
 interface SegmentContentProps {
   type: SegmentType;
+  data: PortalData | null;
 }
 
-const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
+const SegmentContent: React.FC<SegmentContentProps> = ({ type, data }) => {
   const renderPayments = () => (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
       <div className="bg-[#2E2B38] border border-[#4A4A5A] rounded-[2rem] overflow-hidden">
@@ -20,22 +20,21 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#4A4A5A]">
-            <tr className="hover:bg-[#24212b]/30 transition-colors">
-              <td className="px-6 py-5 font-bold text-[#F5F7FA]">Site Analysis Fee</td>
-              <td className="px-6 py-5 text-[#A0AEC0]">Oct 12, 2023</td>
-              <td className="px-6 py-5 font-bold text-[#F5F7FA]">₹5,000</td>
-              <td className="px-6 py-5">
-                <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase px-2 py-1 rounded-md">Paid</span>
-              </td>
-            </tr>
-            <tr className="hover:bg-[#24212b]/30 transition-colors">
-              <td className="px-6 py-5 font-bold text-[#F5F7FA]">Booking Advance</td>
-              <td className="px-6 py-5 text-[#A0AEC0]">Pending Action</td>
-              <td className="px-6 py-5 font-bold text-[#F5F7FA]">₹1,50,000</td>
-              <td className="px-6 py-5">
-                <span className="bg-[#fafa33]/10 text-[#fafa33] text-[10px] font-black uppercase px-2 py-1 rounded-md">Due</span>
-              </td>
-            </tr>
+            {data?.payments && data.payments.length > 0 ? data.payments.map((p, idx) => (
+              <tr key={idx} className="hover:bg-[#24212b]/30 transition-colors">
+                <td className="px-6 py-5 font-bold text-[#F5F7FA]">{p.description}</td>
+                <td className="px-6 py-5 text-[#A0AEC0]">{p.date}</td>
+                <td className="px-6 py-5 font-bold text-[#F5F7FA]">₹{p.amount.toLocaleString()}</td>
+                <td className="px-6 py-5">
+                  <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-md ${p.status === 'Paid' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-[#fafa33]/10 text-[#fafa33]'
+                    }`}>{p.status}</span>
+                </td>
+              </tr>
+            )) : (
+              <tr>
+                <td colSpan={4} className="px-6 py-10 text-center text-[#A0AEC0] italic">No payment history found.</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -55,7 +54,7 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
             <h3 className="text-xl font-bold text-[#F5F7FA] font-rubik">Request Changes</h3>
           </div>
           <p className="text-[#A0AEC0] text-sm leading-relaxed max-w-xl">
-            Need to update the design, change materials, or modify the scope? Submit a formal request here, and our team will review the feasibility and cost implications.
+            Need to update the design, change materials, or modify the scope? Submit a formal request here.
           </p>
         </div>
         <button
@@ -71,8 +70,21 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
 
       <div className="px-2">
         <h4 className="text-[11px] font-black text-[#A0AEC0] uppercase tracking-widest mb-4">Past Consultations</h4>
-        <div className="bg-[#2E2B38]/50 border border-[#4A4A5A] rounded-[2rem] p-8 text-center">
-          <p className="text-[#A0AEC0] text-sm italic">No past modification requests found.</p>
+        <div className="space-y-3">
+          {data?.consultations && data.consultations.length > 0 ? data.consultations.map((c, idx) => (
+            <div key={idx} className="bg-[#2E2B38]/50 border border-[#4A4A5A] rounded-[2rem] p-6 flex justify-between items-center">
+              <div>
+                <p className="text-[#F5F7FA] font-bold">{c.subject}</p>
+                <p className="text-[10px] text-[#A0AEC0] uppercase tracking-widest mt-1">{c.date} @ {c.time} • {c.consultant}</p>
+              </div>
+              <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${c.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-[#fafa33]/10 text-[#fafa33]'
+                }`}>{c.status}</span>
+            </div>
+          )) : (
+            <div className="bg-[#2E2B38]/50 border border-[#4A4A5A] rounded-[2rem] p-8 text-center">
+              <p className="text-[#A0AEC0] text-sm italic">No past modification requests found.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -80,24 +92,17 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
 
   const renderDocuments = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-      {[
-        { name: 'Project Proposal', date: 'Oct 14, 2023', size: '2.4 MB' },
-        { name: 'Initial Design Brief', date: 'Oct 15, 2023', size: '1.1 MB' },
-        { name: 'Site Measurements', date: 'Oct 12, 2023', size: '4.8 MB' },
-        { name: 'Material Specifications', date: 'Pending', size: '-' }
-      ].map((doc, idx) => (
-        <div key={idx} className="bg-[#2E2B38] border border-[#4A4A5A] p-5 rounded-[2rem] flex items-center group hover:border-[#fafa33]/30 transition-all cursor-pointer">
+      {data?.documents && data.documents.length > 0 ? data.documents.map((doc, idx) => (
+        <a key={idx} href={doc.url} target="_blank" rel="noreferrer" className="bg-[#2E2B38] border border-[#4A4A5A] p-5 rounded-[2rem] flex items-center group hover:border-[#fafa33]/30 transition-all cursor-pointer">
           <div className="w-12 h-12 rounded-2xl bg-[#24212b] flex items-center justify-center mr-4 text-[#782e87] group-hover:text-[#fafa33] transition-colors">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
           </div>
           <div className="flex-1">
-            <h4 className="text-sm font-bold text-[#F5F7FA] group-hover:text-[#fafa33] transition-colors">{doc.name}</h4>
+            <h4 className="text-sm font-bold text-[#F5F7FA] group-hover:text-[#fafa33] transition-colors">{doc.subject}</h4>
             <div className="flex items-center text-[10px] text-[#A0AEC0] font-black uppercase tracking-wider mt-1">
-              <span>{doc.date}</span>
-              <span className="mx-2 opacity-30">•</span>
-              <span>{doc.size}</span>
+              <span>{doc.description}</span>
             </div>
           </div>
           <button className="text-[#A0AEC0] hover:text-[#fafa33]">
@@ -105,17 +110,18 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
           </button>
+        </a>
+      )) : (
+        <div className="col-span-full bg-[#2E2B38]/50 border border-[#4A4A5A] rounded-[2rem] p-8 text-center">
+          <p className="text-[#A0AEC0] text-sm italic">No shared documents found.</p>
         </div>
-      ))}
+      )}
     </div>
   );
 
   const renderInvoices = () => (
     <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
-      {[
-        { id: 'INV-2023-001', name: 'Analysis & Consultation', date: 'Oct 12, 2023', total: '₹5,000' },
-        { id: 'INV-2023-082', name: 'Phase 1: Project Initiation', date: 'Generating...', total: '₹1,50,000' }
-      ].map((inv, idx) => (
+      {data?.invoices && data.invoices.length > 0 ? data.invoices.map((inv, idx) => (
         <div key={idx} className="bg-[#2E2B38] border border-[#4A4A5A] p-6 rounded-[2rem] flex flex-col sm:flex-row sm:items-center justify-between group hover:bg-[#2E2B38]/60 transition-all">
           <div className="flex items-center mb-4 sm:mb-0">
             <div className="w-10 h-10 rounded-xl bg-[#782e87]/20 text-[#782e87] flex items-center justify-center mr-4">
@@ -125,7 +131,7 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
             </div>
             <div>
               <h4 className="text-sm font-bold text-[#F5F7FA]">{inv.id}</h4>
-              <p className="text-[11px] text-[#A0AEC0] font-medium">{inv.name}</p>
+              <p className="text-[11px] text-[#A0AEC0] font-medium">{inv.description}</p>
             </div>
           </div>
           <div className="flex items-center justify-between sm:justify-end sm:space-x-12">
@@ -135,11 +141,15 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
             </div>
             <div className="text-right min-w-[100px]">
               <p className="text-[10px] font-black text-[#A0AEC0] uppercase tracking-widest">Total</p>
-              <p className="text-sm font-bold text-[#fafa33]">{inv.total}</p>
+              <p className="text-sm font-bold text-[#fafa33]">₹{inv.amount.toLocaleString()}</p>
             </div>
           </div>
         </div>
-      ))}
+      )) : (
+        <div className="bg-[#2E2B38]/50 border border-[#4A4A5A] rounded-[2rem] p-8 text-center">
+          <p className="text-[#A0AEC0] text-sm italic">No invoices issued yet.</p>
+        </div>
+      )}
     </div>
   );
 
