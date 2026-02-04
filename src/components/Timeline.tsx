@@ -25,18 +25,21 @@ const getStageConfig = (stage: ProjectStage, currentStage: ProjectStage, isViewe
 
   if (stageIndex === currentIndex) {
     if (isViewerAdmin) {
-      // Admin Actions
       switch (stage) {
         case ProjectStage.LEAD_COLLECTED:
           return { label: 'Add Estimate', style: 'primary', statusLabel: 'Action Required' };
         case ProjectStage.ESTIMATE_PROVIDED:
           return { label: 'Pending Approval', style: 'secondary', statusLabel: 'Client Action' };
-        // Add more admin specific actions here as needed
+        case ProjectStage.DESIGN_PHASE:
+          return { label: 'Upload Design', style: 'primary', statusLabel: 'Needs Design' };
+        case ProjectStage.SHIPPING_REQUEST:
+          return { label: 'Confirm Shipping', style: 'primary', statusLabel: 'Logistics' };
+        case ProjectStage.INSTALLATION:
+          return { label: 'Update Progress', style: 'primary', statusLabel: 'On-Site Work' };
         default:
           return { label: 'View Details', style: 'ghost', statusLabel: 'In Progress' };
       }
     } else {
-      // Client Actions (Existing Logic)
       switch (stage) {
         case ProjectStage.LEAD_COLLECTED:
           return { label: 'Request Sent', style: 'ghost', statusLabel: 'Processing' };
@@ -48,12 +51,18 @@ const getStageConfig = (stage: ProjectStage, currentStage: ProjectStage, isViewe
           return { label: 'Make Payment', style: 'primary', statusLabel: 'Secure Gateway' };
         case ProjectStage.AGREEMENT_SIGNED:
           return { label: 'E-Sign Now', style: 'primary', statusLabel: 'Legal Check' };
-        case ProjectStage.SITE_VISIT:
-          return { label: 'View Report', style: 'secondary', statusLabel: 'Site Checked' };
         case ProjectStage.PROJECT_STARTED:
           return { label: 'Project Status', style: 'secondary', statusLabel: 'Procurement' };
-        case ProjectStage.IN_PROGRESS:
-          return { label: 'Pay Installment', style: 'primary', statusLabel: 'Construction' };
+        case ProjectStage.SHIPPING_REQUEST:
+          return { label: 'Approve Shipping', style: 'primary', statusLabel: 'Payment Due' };
+        case ProjectStage.SHIPPED:
+          return { label: 'Track Order', style: 'secondary', statusLabel: 'In Transit' };
+        case ProjectStage.INSTALLATION:
+          return { label: 'Installation', style: 'secondary', statusLabel: 'On-Site Work' };
+        case ProjectStage.POST_INSTALLATION:
+          return { label: 'Final Payment', style: 'primary', statusLabel: 'System Live' };
+        case ProjectStage.COMPLETED:
+          return { label: 'Project Closed', style: 'ghost', statusLabel: 'Enjoy your home!' };
         default:
           return { label: 'Details', style: 'ghost', statusLabel: 'Active' };
       }

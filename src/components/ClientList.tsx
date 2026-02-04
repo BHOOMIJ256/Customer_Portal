@@ -1,44 +1,11 @@
-import React, { useState } from 'react';
-import { Client, ProjectStage } from '../types';
+import { User } from '../types';
 
 interface ClientListProps {
-    onSelectClient: (client: Client) => void;
+    clients: User[];
+    onSelectClient: (client: User) => void;
 }
 
-// Mock Data for Admin View
-const mockClients: Client[] = [
-    {
-        id: '1',
-        name: 'Abhishek Sharma',
-        phoneNumber: '9876543210',
-        currentStage: ProjectStage.ESTIMATE_PROVIDED,
-        lastUpdate: 'Oct 12, 2023',
-        location: 'Bandra, Mumbai',
-        actionNeeded: 'Update Estimate Status'
-    },
-    {
-        id: '2',
-        name: 'Rehan Mehta',
-        phoneNumber: '9123456780',
-        currentStage: ProjectStage.SITE_VISIT,
-        lastUpdate: 'Oct 10, 2023',
-        location: 'Worli, Mumbai',
-        actionNeeded: 'Upload Site Report'
-    },
-    {
-        id: '3',
-        name: 'Sarah Jenkins',
-        phoneNumber: '9988776655',
-        currentStage: ProjectStage.LEAD_COLLECTED,
-        lastUpdate: 'Oct 14, 2023',
-        location: 'Juhu, Mumbai',
-        actionNeeded: 'Provide Initial Estimate'
-    }
-];
-
-const ClientList: React.FC<ClientListProps> = ({ onSelectClient }) => {
-    const [clients] = useState<Client[]>(mockClients);
-
+const ClientList: React.FC<ClientListProps> = ({ clients, onSelectClient }) => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex items-center justify-between mb-2 px-1">
@@ -49,9 +16,9 @@ const ClientList: React.FC<ClientListProps> = ({ onSelectClient }) => {
             </div>
 
             <div className="grid gap-4">
-                {clients.map((client) => (
+                {clients.length > 0 ? clients.map((client) => (
                     <div
-                        key={client.id}
+                        key={client.phoneNumber}
                         className="bg-[#2E2B38] border border-[#4A4A5A] p-6 rounded-[2rem] flex flex-col sm:flex-row items-center justify-between group hover:border-[#fafa33]/30 transition-all shadow-lg"
                     >
                         <div className="flex items-center w-full sm:w-auto mb-4 sm:mb-0">
@@ -61,9 +28,9 @@ const ClientList: React.FC<ClientListProps> = ({ onSelectClient }) => {
                             <div>
                                 <h4 className="text-base font-bold text-[#F5F7FA] group-hover:text-[#fafa33] transition-colors">{client.name}</h4>
                                 <div className="flex items-center text-[10px] text-[#A0AEC0] font-black uppercase tracking-wider mt-1 space-x-2">
-                                    <span>{client.location}</span>
+                                    <span>{client.phoneNumber}</span>
                                     <span className="text-[#4A4A5A]">•</span>
-                                    <span className="text-[#fafa33]">{client.currentStage}</span>
+                                    <span className="text-[#fafa33]">{client.currentStage || 'Lead Collected'}</span>
                                 </div>
                             </div>
                         </div>
@@ -71,7 +38,7 @@ const ClientList: React.FC<ClientListProps> = ({ onSelectClient }) => {
                         <div className="flex items-center space-x-4 w-full sm:w-auto justify-end">
                             <div className="text-right hidden sm:block mr-2">
                                 <p className="text-[9px] font-black text-[#A0AEC0] uppercase tracking-widest">Last Update</p>
-                                <p className="text-xs font-bold text-[#F5F7FA] mt-0.5">{client.lastUpdate}</p>
+                                <p className="text-xs font-bold text-[#F5F7FA] mt-0.5">{client.lastUpdate || 'Just Now'}</p>
                             </div>
 
                             <button
@@ -82,7 +49,11 @@ const ClientList: React.FC<ClientListProps> = ({ onSelectClient }) => {
                             </button>
                         </div>
                     </div>
-                ))}
+                )) : (
+                    <div className="bg-[#2E2B38]/50 border border-[#4A4A5A] p-10 rounded-[2rem] text-center italic text-[#A0AEC0]">
+                        No active clients found.
+                    </div>
+                )}
             </div>
         </div>
     );

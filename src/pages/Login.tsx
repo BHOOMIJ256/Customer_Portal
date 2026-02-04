@@ -11,7 +11,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (phone.length >= 10) {
+    if (phone.length >= 9) {
       onLogin(phone);
     }
   };
