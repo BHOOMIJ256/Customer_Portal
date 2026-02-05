@@ -39,6 +39,8 @@ const getStageConfig = (stage: ProjectStage, currentStage: ProjectStage, isViewe
       switch (stage) {
         case ProjectStage.LEAD_COLLECTED:
           return { label: 'Add Estimate', style: 'primary', statusLabel: 'Action Required', category: 'Sales', role: 'System', hasAction: true };
+        case ProjectStage.ESTIMATE_GENERATION:
+          return { label: 'View Estimate', style: 'ghost', statusLabel: 'Generated', category: 'Costing', role: 'System', hasAction: true };
         case ProjectStage.ESTIMATE_PROVIDED:
           return { label: 'Pending Approval', style: 'secondary', statusLabel: 'Client Action', category: 'Estimation', role: 'Client', hasAction: false };
         default:
@@ -49,6 +51,8 @@ const getStageConfig = (stage: ProjectStage, currentStage: ProjectStage, isViewe
       switch (stage) {
         case ProjectStage.LEAD_COLLECTED:
           return { label: 'Request Sent', style: 'ghost', statusLabel: 'Processing', category: 'Inquiry', role: 'System', hasAction: false };
+        case ProjectStage.ESTIMATE_GENERATION:
+          return { label: 'Generated', style: 'secondary', statusLabel: 'Internal', category: 'Costing', role: 'System', hasAction: false };
         case ProjectStage.ESTIMATE_PROVIDED:
           return { label: 'Review Estimate', style: 'primary', statusLabel: 'Awaiting User', category: 'Costing', role: 'Senior Architect', hasAction: true };
         case ProjectStage.DESIGN_PHASE:
