@@ -16,14 +16,14 @@ export function usePortalData(phone: string | null) {
       }
 
       const url = `${scriptUrl}?phone=${phoneNumber}&t=${Date.now()}`;
-      
+
       const response = await fetch(url);
       const responseText = await response.text();
 
       if (!response.ok) {
         let errorMsg = `Server error: ${response.status} ${response.statusText}`;
         if (responseText.includes('Script function not found')) {
-            errorMsg = "Backend Error: 'doGet' function missing or deployment issue. Please check Apps Script.";
+          errorMsg = "Backend Error: 'doGet' function missing or deployment issue. Please check Apps Script.";
         }
         throw new Error(errorMsg);
       }
@@ -38,14 +38,15 @@ export function usePortalData(phone: string | null) {
       // Transform raw sheet data into PortalData structure
       const transformedData: PortalData = {
         user: {
-            name: "Premium Client",
-            phoneNumber: phoneNumber,
-            role: 'client'
+          name: "Premium Client",
+          phoneNumber: phoneNumber,
+          role: 'client'
         },
         opportunities: rawDb.Opportunities || [],
         invoices: rawDb.Invoices || [],
         payments: rawDb.Payments || [],
         documents: rawDb.OtherDocuments || [],
+        myDocuments: rawDb.MyDocuments || [],
         consultations: rawDb.ConsultationSession || []
       };
 
@@ -61,25 +62,25 @@ export function usePortalData(phone: string | null) {
 
       if (hritaUser) {
         transformedData.user = {
-            name: hritaUser.name || "Hrita Admin",
-            phoneNumber: phoneNumber,
-            role: 'admin'
+          name: hritaUser.name || "Hrita Admin",
+          phoneNumber: phoneNumber,
+          role: 'admin'
         };
         // Admins see all clients from the Users sheet
         transformedData.allClients = (rawDb.Users || []).map((u: any) => ({
-            name: u.name || "Unnamed Client",
-            phoneNumber: String(u.phone_number),
-            role: 'client',
-            currentStage: u.current_stage || u.status || 'Lead Collected',
-            lastUpdate: u.last_update || 'Recently'
+          name: u.name || "Unnamed Client",
+          phoneNumber: String(u.phone_number),
+          role: 'client',
+          currentStage: u.current_stage || u.status || 'Lead Collected',
+          lastUpdate: u.last_update || 'Recently'
         }));
       } else if (normalUser) {
         transformedData.user = {
-            name: normalUser.name || "Premium Client",
-            phoneNumber: phoneNumber,
-            role: 'client',
-            currentStage: normalUser.current_stage || normalUser.status || 'Lead Collected',
-            lastUpdate: normalUser.last_update || 'Recently'
+          name: normalUser.name || "Premium Client",
+          phoneNumber: phoneNumber,
+          role: 'client',
+          currentStage: normalUser.current_stage || normalUser.status || 'Lead Collected',
+          lastUpdate: normalUser.last_update || 'Recently'
         };
       }
 

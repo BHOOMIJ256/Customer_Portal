@@ -14,6 +14,7 @@ import AddLeadModal from '../components/modals/AddLeadModal';
 import { usePortalData } from '../hooks/usePortalData';
 import { updateStage, addLead } from '../services/api';
 import toast from 'react-hot-toast';
+import { mockStore } from '../services/mockStore';
 
 interface DashboardProps {
   user: User;
@@ -39,12 +40,28 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
     }
   }, [data]);
 
+  // Sync with mock store for UI updates
+  const [, setTick] = useState(0);
+  React.useEffect(() => {
+    return mockStore.subscribe(() => setTick(t => t + 1));
+  }, []);
+
+  const getMockedUser = (u: User | null) => {
+    if (!u) return u;
+    const mockState = mockStore.getClientState(u.phoneNumber);
+    return {
+      ...u,
+      currentStage: (mockState.status as any) || u.currentStage
+    };
+  };
+
   // Derived user to show: Admin sees themselves unless they select a client
-  const displayedUser = currentUser.role === 'admin' && selectedClient ? { ...selectedClient, role: 'client' as const } : currentUser;
+  const baseDisplayedUser = currentUser.role === 'admin' && selectedClient ? { ...selectedClient, role: 'client' as const } : currentUser;
+  const displayedUser = getMockedUser(baseDisplayedUser)!;
   const isImpersonating = currentUser.role === 'admin' && selectedClient;
 
   // Fetch client data if impersonating
-  const { data: clientData } = usePortalData(isImpersonating ? selectedClient?.phoneNumber || null : null);
+  const { data: clientData, refetch: refetchClient } = usePortalData(isImpersonating ? selectedClient?.phoneNumber || null : null);
 
   const [activeSegment, setActiveSegment] = useState<SegmentType>('Recents');
   const [isEstimateOpen, setIsEstimateOpen] = useState(false);
@@ -54,6 +71,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
 
   const handleTimelineAction = (stage: ProjectStage) => {
     switch (stage) {
+      case ProjectStage.LEAD_COLLECTED:
       case ProjectStage.ESTIMATE_PROVIDED:
         setIsEstimateOpen(true);
         break;
@@ -329,6 +347,15 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
         onClose={() => setIsEstimateOpen(false)}
         onApprove={handleApproveEstimate}
         opportunity={(isImpersonating ? clientData : data)?.opportunities?.[0] || null}
+        userRole={currentUser.role}
+        onUpdate={() => {
+          refetch();
+          if (isImpersonating) refetchClient();
+        }}
+        myDocuments={[
+          ...((isImpersonating ? clientData : data)?.myDocuments || []),
+          ...mockStore.getClientState(displayedUser.phoneNumber).documents
+        ]}
       />
       <DesignModal isOpen={isDesignOpen} onClose={() => setIsDesignOpen(false)} onApprove={handleApproveDesign} onRequestRevisions={handleRequestRevisions} />
       <PaymentModal isOpen={isPaymentOpen} onClose={() => setIsPaymentOpen(false)} onPaymentSuccess={handlePaymentSuccess} />
