@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import { User, ProjectStage } from './types';
+import { Toaster } from 'react-hot-toast';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -48,6 +49,7 @@ const App: React.FC = () => {
       ) : (
         <Dashboard user={user} onLogout={handleLogout} />
       )}
+      <Toaster position="top-right" />
     </div>
   );
 };

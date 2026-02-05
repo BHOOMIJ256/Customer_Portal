@@ -15,13 +15,10 @@ export function usePortalData(phone: string | null) {
         throw new Error('Google Script URL not configured in .env');
       }
 
-      console.log(`[usePortalData] Fetching data for: ${phoneNumber}`);
-      const url = `${scriptUrl}?phone=${phoneNumber}`;
-      console.log(`[usePortalData] Fetching data via GET: ${url}`);
+      const url = `${scriptUrl}?phone=${phoneNumber}&t=${Date.now()}`;
       
       const response = await fetch(url);
       const responseText = await response.text();
-      console.log(`[usePortalData] Raw Response:`, responseText);
 
       if (!response.ok) {
         let errorMsg = `Server error: ${response.status} ${response.statusText}`;
@@ -86,7 +83,6 @@ export function usePortalData(phone: string | null) {
         };
       }
 
-      console.log(`[usePortalData] Transformed Data:`, transformedData);
       setData(transformedData);
     } catch (err) {
       setError(err instanceof Error ? err : new Error(String(err)));

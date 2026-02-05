@@ -8,10 +8,12 @@ import SearchBar from '../components/SearchBar';
 import EstimateModal from '../components/modals/EstimateModal';
 import DesignModal from '../components/modals/DesignModal';
 import PaymentModal from '../components/modals/PaymentModal';
-import Logo from '../components/Logo';
+import HritaLogo from '../components/Logo';
 import ClientList from '../components/ClientList';
+import AddLeadModal from '../components/modals/AddLeadModal';
 import { usePortalData } from '../hooks/usePortalData';
-import { updateStage } from '../services/api';
+import { updateStage, addLead } from '../services/api';
+import toast from 'react-hot-toast';
 
 interface DashboardProps {
   user: User;
@@ -48,6 +50,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
   const [isEstimateOpen, setIsEstimateOpen] = useState(false);
   const [isDesignOpen, setIsDesignOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
 
   const handleTimelineAction = (stage: ProjectStage) => {
     switch (stage) {
@@ -61,7 +64,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
         setIsPaymentOpen(true);
         break;
       default:
-        alert(`Stage: ${stage}\nWorkflow detail coming soon.`);
+        toast.success(`Stage: ${stage}.\nWorkflow detail coming soon.`);
     }
   };
 
@@ -69,10 +72,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
     setIsEstimateOpen(false);
     try {
       await updateStage(currentUser.phoneNumber, ProjectStage.DESIGN_PHASE);
-      alert('Estimate Approved! Moving to Design Phase.');
+      toast.success('Estimate Approved! Moving to Design Phase.');
       refetch();
     } catch (err) {
-      alert('Failed to update stage. Please try again.');
+      toast.error('Failed to update stage. Please try again.');
     }
   };
 
@@ -80,10 +83,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
     setIsDesignOpen(false);
     try {
       await updateStage(currentUser.phoneNumber, ProjectStage.BOOKING_PAYMENT);
-      alert('Design Approved! Redirecting to Booking Payment.');
+      toast.success('Design Approved! Redirecting to Booking Payment.');
       refetch();
     } catch (err) {
-      alert('Failed to update stage. Please try again.');
+      toast.error('Failed to update stage. Please try again.');
     }
   };
 
@@ -91,10 +94,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
     setIsPaymentOpen(false);
     try {
       await updateStage(currentUser.phoneNumber, ProjectStage.PROJECT_STARTED);
-      alert('Payment Successful! Project has officially started.');
+      toast.success('Payment Successful! Project has officially started.');
       refetch();
     } catch (err) {
-      alert('Failed to update stage. Please try again.');
+      toast.error('Failed to update stage. Please try again.');
     }
   };
 
@@ -102,10 +105,25 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
     setIsDesignOpen(false);
     try {
       await updateStage(currentUser.phoneNumber, ProjectStage.DESIGN_PHASE, { revisions: specs });
-      alert(`Revision request sent: "${specs}". Updated designs will appear here shortly.`);
+      toast.success(`Revision request sent. Updated designs will appear here shortly.`);
       refetch();
     } catch (err) {
-      alert('Failed to send revision request.');
+      toast.error('Failed to send revision request.');
+    }
+  };
+
+  const handleAddLead = async (name: string, phone: string) => {
+    try {
+      await addLead(name, phone);
+      setIsAddLeadOpen(false);
+      toast.success('Lead added successfully!');
+
+      // Delay refetch slightly to ensure Google Script index is updated
+      setTimeout(() => {
+        refetch();
+      }, 1500);
+    } catch (err) {
+      toast.error('Failed to add lead. Please try again.');
     }
   };
 
@@ -165,7 +183,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
       <nav className="bg-[#2E2B38] border-b border-[#4A4A5A] px-6 py-4 sticky top-0 z-50 backdrop-blur-md bg-[#2E2B38]/90">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-3 group cursor-pointer" onClick={() => { setActiveSegment('Recents'); setSelectedClient(null); }}>
-            <Logo />
+            <HritaLogo />
           </div>
 
           <div className="flex items-center space-x-5">
@@ -238,6 +256,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
               {currentUser.role === 'admin' && !selectedClient ? (
                 <ClientList
                   clients={data?.allClients || []}
+                  onAddLead={() => setIsAddLeadOpen(true)}
                   onSelectClient={(client) => {
                     // Cast Client to User, ensuring role is compatible
                     const userClient: User = {
@@ -313,6 +332,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
       />
       <DesignModal isOpen={isDesignOpen} onClose={() => setIsDesignOpen(false)} onApprove={handleApproveDesign} onRequestRevisions={handleRequestRevisions} />
       <PaymentModal isOpen={isPaymentOpen} onClose={() => setIsPaymentOpen(false)} onPaymentSuccess={handlePaymentSuccess} />
+      <AddLeadModal isOpen={isAddLeadOpen} onClose={() => setIsAddLeadOpen(false)} onSubmit={handleAddLead} />
     </div>
   );
 };

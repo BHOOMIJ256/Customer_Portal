@@ -19,7 +19,6 @@ export async function updateStage(phone: string, stage: string, additionalData: 
     // In a real app, you'd use a proxy or CORS-enabled backend.
     return { success: true };
   } catch (error) {
-    console.error('Error updating stage:', error);
     throw error;
   }
 }
@@ -42,7 +41,25 @@ export async function submitConsultation(phone: string, subject: string, descrip
     });
     return { success: true };
   } catch (error) {
-    console.error('Error submitting consultation:', error);
+    throw error;
+  }
+}
+
+export async function addLead(name: string, phone: string) {
+  try {
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'ADD_LEAD',
+        name: name,
+        phone: phone
+      }),
+    });
+    return { success: true };
+  } catch (error) {
     throw error;
   }
 }
