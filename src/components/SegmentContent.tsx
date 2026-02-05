@@ -1,4 +1,5 @@
 
+import toast from 'react-hot-toast';
 import { SegmentType, PortalData } from '../types';
 
 interface SegmentContentProps {
@@ -58,7 +59,7 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type, data }) => {
           </p>
         </div>
         <button
-          onClick={() => alert("feature coming soon")}
+          onClick={() => toast.success("Feature coming soon!")}
           className="bg-[#fafa33] text-[#24212b] px-8 py-4 rounded-xl text-sm font-black hover:bg-[#ffff4d] transition-all active:scale-95 shadow-xl shadow-[#fafa33]/10 flex items-center whitespace-nowrap"
         >
           <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">

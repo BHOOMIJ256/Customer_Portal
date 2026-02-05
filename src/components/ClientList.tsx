@@ -3,16 +3,30 @@ import { User } from '../types';
 interface ClientListProps {
     clients: User[];
     onSelectClient: (client: User) => void;
+    onAddLead?: () => void;
 }
 
-const ClientList: React.FC<ClientListProps> = ({ clients, onSelectClient }) => {
+const ClientList: React.FC<ClientListProps> = ({ clients, onSelectClient, onAddLead }) => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex items-center justify-between mb-2 px-1">
-                <h3 className="text-xl font-black text-[#F5F7FA] font-rubik">Active Clients</h3>
-                <span className="text-xs font-bold text-[#A0AEC0] bg-[#2E2B38] px-3 py-1 rounded-full border border-[#4A4A5A]">
-                    {clients.length} Active
-                </span>
+                <div className="flex items-center space-x-4">
+                    <h3 className="text-xl font-black text-[#F5F7FA] font-rubik">Active Clients</h3>
+                    <span className="text-xs font-bold text-[#A0AEC0] bg-[#2E2B38] px-3 py-1 rounded-full border border-[#4A4A5A]">
+                        {clients.length} Active
+                    </span>
+                </div>
+                {onAddLead && (
+                    <button
+                        onClick={onAddLead}
+                        className="bg-[#2E2B38] border border-[#4A4A5A] text-[#F5F7FA] px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#393645] hover:border-[#fafa33]/50 transition-all active:scale-95 flex items-center group shadow-lg"
+                    >
+                        <svg className="w-4 h-4 mr-2 text-[#fafa33]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Add New Lead
+                    </button>
+                )}
             </div>
 
             <div className="grid gap-4">

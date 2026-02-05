@@ -1,0 +1,64 @@
+Once again these are my sheets and columns.
+
+HritaUsers
+- phone_number
+- name
+
+Users
+- phone_number
+- name
+
+Opportunities
+- id
+- phone_number
+- subject
+- description
+- date_requested
+- date_prepared
+- date_approved
+- booking_amount
+- paid_amount
+- payment_due
+- status
+- document_url
+- estimate_viewers
+
+Invoices
+- phone_number
+- id
+- description
+- date
+- amount
+
+Payments
+- phone_number
+- invoice_id
+- description
+- amount
+- status
+- date
+
+OtherDocument
+- phone_number
+- subject
+- description
+- url
+
+ConsultationSession
+- phone_number
+- subject
+- description
+- date
+- time
+- status
+- consultant
+
+Tickets
+- (Empty Sheet)
+---
+
+Now, As a admin once the client/lead requests estimate. Admin should be able to get a modal in which there should subject, description and option to upload pdf.
+
+Now, on backend or database/sheets
+- Whenever a estimate is received or lead is created, Opportunites sheet should be filled with id, phone_number, date_requested and status.
+- Once the admin uploads the estimate pdf, it should be saved in the google drive and the url (not the drive url, only the pdf's url) should be saved in the Opportunites
