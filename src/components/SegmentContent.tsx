@@ -14,7 +14,9 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type, data }) => {
         <table className="w-full text-left text-sm">
           <thead className="text-[10px] font-black text-[#A0AEC0] uppercase tracking-widest bg-[#24212b]/50 border-b border-[#4A4A5A]">
             <tr>
-              <th className="px-6 py-4">Transaction</th>
+              <th className="px-6 py-4">Invoice ID</th>
+              <th className="px-6 py-4">Client</th>
+              <th className="px-6 py-4">Description</th>
               <th className="px-6 py-4">Date</th>
               <th className="px-6 py-4">Amount</th>
               <th className="px-6 py-4">Status</th>
@@ -23,12 +25,24 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type, data }) => {
           <tbody className="divide-y divide-[#4A4A5A]">
             {data?.payments && data.payments.length > 0 ? data.payments.map((p, idx) => (
               <tr key={idx} className="hover:bg-[#24212b]/30 transition-colors">
-                <td className="px-6 py-5 font-bold text-[#F5F7FA]">{p.description}</td>
+                <td className="px-6 py-5 font-bold text-[#F5F7FA]">{p.invoice_id}</td>
+                <td className="px-6 py-5 text-[#A0AEC0]">{p.phone_number}</td>
+                <td className="px-6 py-5 text-[#F5F7FA]">{p.description}</td>
                 <td className="px-6 py-5 text-[#A0AEC0]">{p.date}</td>
                 <td className="px-6 py-5 font-bold text-[#F5F7FA]">₹{p.amount.toLocaleString()}</td>
                 <td className="px-6 py-5">
-                  <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-md ${p.status === 'Paid' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-[#fafa33]/10 text-[#fafa33]'
-                    }`}>{p.status}</span>
+                  <div className="flex items-center justify-between">
+                    <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-md ${p.status === 'Paid' ? 'bg-emerald-500/10 text-emerald-400' :
+                      p.status === 'Pending' ? 'bg-[#fafa33]/10 text-[#fafa33]' :
+                        p.status === 'Upcoming' ? 'bg-[#A0AEC0]/10 text-[#A0AEC0]' :
+                          'bg-red-500/10 text-red-400'
+                      }`}>{p.status}</span>
+                    {p.status === 'Pending' && (
+                      <button className="bg-[#fafa33] text-[#24212b] px-3 py-1.5 rounded-lg text-[10px] font-black hover:bg-[#ffff4d] transition-all active:scale-95 shadow-lg shadow-[#fafa33]/10">
+                        Pay now
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             )) : (

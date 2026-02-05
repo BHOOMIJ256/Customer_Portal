@@ -324,7 +324,13 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
               </div>
               <SegmentContent
                 type={activeSegment}
-                data={isImpersonating ? clientData : data}
+                data={{
+                  ...(isImpersonating ? clientData : data)!,
+                  payments: [
+                    ...((isImpersonating ? clientData : data)?.payments || []),
+                    ...(mockStore.getClientState(displayedUser.phoneNumber).payments || [])
+                  ]
+                }}
               />
             </div>
           )}

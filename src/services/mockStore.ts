@@ -1,11 +1,11 @@
-
-import { ProjectStage } from '../types';
+import { ProjectStage, Payment } from '../types';
 
 export interface MockClientState {
     status: string | ProjectStage;
     details?: any;
     documents: { id: string; url: string; version: number; date: string }[];
     revisions?: string;
+    payments?: Payment[];
 }
 
 class MockStore {
@@ -15,7 +15,12 @@ class MockStore {
         if (!this.states[phone]) {
             this.states[phone] = {
                 status: ProjectStage.LEAD_COLLECTED,
-                documents: []
+                documents: [],
+                payments: [
+                    { phone_number: phone, invoice_id: 'INV-001', description: 'Booking Amount', date: '2024-01-15', amount: 25000, status: 'Paid' },
+                    { phone_number: phone, invoice_id: 'INV-002', description: 'Design Milestone', date: '2024-02-10', amount: 50000, status: 'Pending' },
+                    { phone_number: phone, invoice_id: 'INV-003', description: 'Material Procurement', date: '2024-03-05', amount: 150000, status: 'Upcoming' }
+                ]
             };
         }
         return this.states[phone];

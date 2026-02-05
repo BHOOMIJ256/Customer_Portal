@@ -59,7 +59,7 @@ export interface Payment {
   invoice_id: string;
   description: string;
   amount: number;
-  status: 'Paid' | 'Pending' | 'Due';
+  status: 'Paid' | 'Pending' | 'Due' | 'Upcoming';
   date: string;
 }
 
