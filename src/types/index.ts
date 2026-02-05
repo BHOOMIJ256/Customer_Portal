@@ -43,6 +43,7 @@ export interface Opportunity {
   payment_due: number;
   status: ProjectStage | string;
   estimate_views: string; // comma separated phone numbers
+  my_doc_id: string;
 }
 
 export interface Invoice {
@@ -79,12 +80,25 @@ export interface ConsultationSession {
   consultant: string;
 }
 
+export interface EstimateSubmission {
+  phone_number: string;
+  city: string;
+  property_type: string;
+  bhk: string;
+  square_feat: string;
+  layout_url: string;
+  wiring_done: string;
+  possession_status: string;
+  service_required: string;
+}
+
 export interface PortalData {
   user: User;
   opportunities: Opportunity[];
   invoices: Invoice[];
   payments: Payment[];
   documents: OtherDocument[];
+  myDocuments?: any[];
   consultations: ConsultationSession[];
   allClients?: User[]; // For admin view
 }

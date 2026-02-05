@@ -40,9 +40,15 @@ const getStageConfig = (stage: ProjectStage, currentStage: ProjectStage, isViewe
           return { label: 'View Details', style: 'ghost', statusLabel: 'In Progress' };
       }
     } else {
-      switch (stage) {
+      switch (stage as any) {
         case ProjectStage.LEAD_COLLECTED:
-          return { label: 'Request Sent', style: 'ghost', statusLabel: 'Processing' };
+          return { label: 'Fill details', style: 'primary', statusLabel: 'Awaiting Details' };
+        case 'Estimate requested':
+          return { label: 'Pending Review', style: 'ghost', statusLabel: 'Hrita Reviewing' };
+        case 'Estimate ready':
+          return { label: 'Review Estimate', style: 'primary', statusLabel: 'Estimate Prepared' };
+        case 'Changes requested':
+          return { label: 'Changes Sent', style: 'ghost', statusLabel: 'Revising Estimate' };
         case ProjectStage.ESTIMATE_PROVIDED:
           return { label: 'Review Estimate', style: 'primary', statusLabel: 'Awaiting Approval' };
         case ProjectStage.DESIGN_PHASE:
@@ -66,6 +72,18 @@ const getStageConfig = (stage: ProjectStage, currentStage: ProjectStage, isViewe
         default:
           return { label: 'Details', style: 'ghost', statusLabel: 'Active' };
       }
+    }
+  }
+
+  // Handle current stage for Admin view
+  if (stageIndex === currentIndex && isViewerAdmin) {
+    switch (stage as any) {
+      case 'Estimate requested':
+        return { label: 'Add Estimate', style: 'primary', statusLabel: 'Details Received' };
+      case 'Changes requested':
+        return { label: 'Update Estimate', style: 'primary', statusLabel: 'Revisions Needed' };
+      case 'Estimate ready':
+        return { label: 'Estimate Sent', style: 'secondary', statusLabel: 'Awaiting Client' };
     }
   }
 
