@@ -23,12 +23,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onPaymentS
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-      <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-md animate-in fade-in duration-300"
-        onClick={!isProcessing ? onClose : undefined}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
+        onClick={onClose}
       ></div>
-      
-      <div className="relative w-full max-w-md bg-[#2E2B38] border border-[#4A4A5A] rounded-[2.5rem] shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300 overflow-hidden">
+
+      <div className="relative w-full max-w-md bg-[#2E2B38] border border-[#4A4A5A] rounded-[2.5rem] shadow-2xl animate-in zoom-in-95 overflow-hidden">
         {isProcessing ? (
           <div className="p-12 text-center space-y-6">
             <div className="w-20 h-20 border-4 border-[#fafa33]/20 border-t-[#fafa33] rounded-full animate-spin mx-auto"></div>
@@ -45,7 +45,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onPaymentS
                   <h2 className="text-2xl font-bold text-[#F5F7FA] font-rubik">Payment Secure</h2>
                   <p className="text-[#A0AEC0] text-sm mt-1 tracking-tight">Booking Advance • Installment 1</p>
                 </div>
-                <button 
+                <button
                   onClick={onClose}
                   className="p-2 hover:bg-[#24212b] rounded-full text-[#A0AEC0] transition-colors"
                 >
@@ -80,7 +80,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onPaymentS
                   </div>
                   <div className="p-3 bg-[#24212b] border border-[#fafa33]/50 rounded-2xl flex flex-col items-center cursor-pointer ring-2 ring-[#fafa33]/10">
                     <div className="w-6 h-6 bg-[#fafa33]/20 rounded-md mb-1 flex items-center justify-center">
-                       <div className="w-3 h-3 bg-[#fafa33] rounded-sm"></div>
+                      <div className="w-3 h-3 bg-[#fafa33] rounded-sm"></div>
                     </div>
                     <span className="text-[8px] font-black text-[#fafa33] uppercase">Cards</span>
                   </div>
@@ -93,7 +93,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onPaymentS
             </div>
 
             <div className="p-8 bg-[#24212b]/50 border-t border-[#4A4A5A]">
-              <button 
+              <button
                 onClick={handlePayment}
                 className="w-full px-8 py-5 rounded-2xl bg-[#fafa33] text-[#24212b] font-black hover:bg-[#ffff4d] transition-all shadow-xl shadow-[#fafa33]/10 font-rubik flex items-center justify-center"
               >

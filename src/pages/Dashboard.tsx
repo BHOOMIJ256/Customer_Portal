@@ -41,9 +41,12 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
   }, [data]);
 
   // Sync with mock store for UI updates
-  const [, setTick] = useState(0);
+  const [, forceUpdate] = React.useState({});
+
   React.useEffect(() => {
-    return mockStore.subscribe(() => setTick(t => t + 1));
+    return mockStore.subscribe(() => {
+      forceUpdate({}); // Force re-render when mock store changes
+    });
   }, []);
 
   const getMockedUser = (u: User | null) => {
@@ -89,33 +92,39 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
   const handleApproveEstimate = async () => {
     setIsEstimateOpen(false);
     try {
-      await updateStage(currentUser.phoneNumber, ProjectStage.DESIGN_PHASE);
+      await updateStage(displayedUser.phoneNumber, ProjectStage.DESIGN_PHASE);
       toast.success('Estimate Approved! Moving to Design Phase.');
       refetch();
     } catch (err) {
-      toast.error('Failed to update stage. Please try again.');
+      // Fallback for Demo
+      mockStore.updateStatus(displayedUser.phoneNumber, ProjectStage.DESIGN_PHASE);
+      toast.success('Estimate Approved! Moving to Design Phase (Mock).');
     }
   };
 
   const handleApproveDesign = async () => {
     setIsDesignOpen(false);
     try {
-      await updateStage(currentUser.phoneNumber, ProjectStage.BOOKING_PAYMENT);
+      await updateStage(displayedUser.phoneNumber, ProjectStage.BOOKING_PAYMENT);
       toast.success('Design Approved! Redirecting to Booking Payment.');
       refetch();
     } catch (err) {
-      toast.error('Failed to update stage. Please try again.');
+      // Fallback for Demo
+      mockStore.updateStatus(displayedUser.phoneNumber, ProjectStage.BOOKING_PAYMENT);
+      toast.success('Design Approved! Redirecting to Booking Payment (Mock).');
     }
   };
 
   const handlePaymentSuccess = async () => {
     setIsPaymentOpen(false);
     try {
-      await updateStage(currentUser.phoneNumber, ProjectStage.PROJECT_STARTED);
+      await updateStage(displayedUser.phoneNumber, ProjectStage.PROJECT_STARTED);
       toast.success('Payment Successful! Project has officially started.');
       refetch();
     } catch (err) {
-      toast.error('Failed to update stage. Please try again.');
+      // Fallback for Demo
+      mockStore.updateStatus(displayedUser.phoneNumber, ProjectStage.PROJECT_STARTED);
+      toast.success('Payment Successful! Project has officially started (Mock).');
     }
   };
 
@@ -126,7 +135,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
       toast.success(`Revision request sent. Updated designs will appear here shortly.`);
       refetch();
     } catch (err) {
-      toast.error('Failed to send revision request.');
+      // Fallback for Demo
+      mockStore.requestChanges(currentUser.phoneNumber, specs);
+      toast.success(`Revision request sent (Mock).`);
     }
   };
 
@@ -356,6 +367,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
           ...((isImpersonating ? clientData : data)?.myDocuments || []),
           ...mockStore.getClientState(displayedUser.phoneNumber).documents
         ]}
+        targetPhoneNumber={displayedUser.phoneNumber}
       />
       <DesignModal isOpen={isDesignOpen} onClose={() => setIsDesignOpen(false)} onApprove={handleApproveDesign} onRequestRevisions={handleRequestRevisions} />
       <PaymentModal isOpen={isPaymentOpen} onClose={() => setIsPaymentOpen(false)} onPaymentSuccess={handlePaymentSuccess} />

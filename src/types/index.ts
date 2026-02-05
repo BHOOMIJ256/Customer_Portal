@@ -20,6 +20,12 @@ export interface User {
   role: 'admin' | 'client' | 'architect';
   currentStage?: ProjectStage;
   lastUpdate?: string;
+  // UI Specific fields for Client List Cards
+  projectType?: string;
+  description?: string;
+  totalAmount?: string;
+  amountDue?: string;
+  viewers?: number;
 }
 
 export interface HritaUser {

@@ -11,9 +11,10 @@ interface EstimateModalProps {
   userRole: 'admin' | 'client' | 'architect';
   onUpdate: () => void;
   myDocuments?: any[];
+  targetPhoneNumber?: string;
 }
 
-const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprove, opportunity, userRole, onUpdate, myDocuments }) => {
+const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprove, opportunity, userRole, onUpdate, myDocuments, targetPhoneNumber }) => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showRevisionInput, setShowRevisionInput] = React.useState(false);
   const [revisionText, setRevisionText] = React.useState('');
@@ -37,20 +38,19 @@ const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprov
 
   if (!isOpen) return null;
 
-  const currentStatus = (mockStore.getClientState(opportunity?.phone_number || '').status as any) || opportunity?.status;
-  const isLeadCollected = currentStatus === ProjectStage.LEAD_COLLECTED || !opportunity;
+  const currentStatus = (mockStore.getClientState(opportunity?.phone_number || targetPhoneNumber || '').status as any) || opportunity?.status || ProjectStage.LEAD_COLLECTED;
+  const isLeadCollected = currentStatus === ProjectStage.LEAD_COLLECTED;
   const isEstimateReady = currentStatus === 'Estimate ready' || currentStatus === ProjectStage.ESTIMATE_PROVIDED;
   const isAdmin = userRole === 'admin';
 
   const handleSubmitDetails = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!opportunity?.phone_number) {
-      toast.error("User identification missing");
-      return;
-    }
+    // Allow mock submission if no phone number (Demo Mode)
+    const phone = opportunity?.phone_number || targetPhoneNumber || '0000000000';
+
     setIsSubmitting(true);
     setTimeout(() => {
-      mockStore.submitDetails(opportunity.phone_number, formData);
+      mockStore.submitDetails(phone, formData);
       toast.success('Details submitted successfully!');
       setIsSubmitting(false);
       onClose();
@@ -218,22 +218,44 @@ const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprov
 
               <div className="bg-[#24212b] p-6 rounded-3xl border border-[#4A4A5A]">
                 <div className="flex justify-between items-center mb-4 border-b border-[#4A4A5A] pb-4">
-                  <span className="text-[#A0AEC0] font-bold text-xs uppercase tracking-widest">Pricing Overview</span>
-                  <span className="text-[#A0AEC0] font-bold text-xs uppercase tracking-widest">Estimate</span>
+                  <span className="text-[#A0AEC0] font-bold text-xs uppercase tracking-widest">Description</span>
+                  <span className="text-[#A0AEC0] font-bold text-xs uppercase tracking-widest">Amount</span>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-[#F5F7FA]">Civil & Structural</span>
-                    <span className="text-[#F5F7FA] font-bold">Included</span>
+                    <span className="text-[#F5F7FA]">Interior Design & 3D Renders</span>
+                    <span className="text-[#F5F7FA] font-bold">₹75,000</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-[#F5F7FA]">Interior & Furniture</span>
-                    <span className="text-[#F5F7FA] font-bold">Included</span>
+                    <span className="text-[#F5F7FA]">Flooring & Civil Work</span>
+                    <span className="text-[#F5F7FA] font-bold">₹1,25,000</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#F5F7FA]">Electrical & Plumbing Fixes</span>
+                    <span className="text-[#F5F7FA] font-bold">₹90,000</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#F5F7FA]">Custom Furniture & Cabinetry</span>
+                    <span className="text-[#F5F7FA] font-bold">₹1,60,000</span>
                   </div>
                 </div>
                 <div className="mt-6 pt-6 border-t border-[#4A4A5A] flex justify-between items-center">
-                  <span className="text-[#F5F7FA] font-bold">Booking Amount</span>
-                  <span className="text-[#fafa33] text-2xl font-black font-rubik">₹{(opportunity?.booking_amount || 0).toLocaleString()}</span>
+                  <span className="text-[#F5F7FA] font-bold">Total Estimate</span>
+                  <span className="text-[#fafa33] text-2xl font-black font-rubik">₹4,50,000</span>
+                </div>
+
+                <div className="mt-4 text-center">
+                  <a
+                    href={estimateUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-[#A0AEC0] hover:text-[#fafa33] text-xs font-bold transition-colors group border border-[#4A4A5A] px-4 py-2 rounded-lg hover:border-[#fafa33]/50"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    Download Submitted PDF
+                  </a>
                 </div>
               </div>
 
@@ -262,20 +284,7 @@ const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprov
                 </div>
               ) : (
                 <>
-                  <div className="text-center px-4">
-                    <a
-                      href={estimateUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center text-[#A0AEC0] hover:text-[#fafa33] text-sm font-bold transition-colors group"
-                    >
-                      <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                      </svg>
-                      View Detailed PDF
-                      <span className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity">↗</span>
-                    </a>
-                  </div>
+
 
                   <div className="flex flex-col sm:flex-row gap-4">
                     {userRole !== 'admin' && (
@@ -287,10 +296,16 @@ const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprov
                       </button>
                     )}
                     <button
+                      onClick={() => setShowRevisionInput(true)}
+                      className="flex-1 px-8 py-4 rounded-2xl bg-[#2E2B38] border border-[#4A4A5A] text-[#F5F7FA] font-bold hover:bg-[#393645] transition-all font-rubik"
+                    >
+                      Later
+                    </button>
+                    <button
                       onClick={onApprove}
                       className="flex-1 px-8 py-4 rounded-2xl bg-[#fafa33] text-[#24212b] font-black hover:bg-[#ffff4d] transition-all shadow-lg shadow-[#fafa33]/10 font-rubik"
                     >
-                      Approve & Proceed
+                      Confirm & Book
                     </button>
                   </div>
                 </>

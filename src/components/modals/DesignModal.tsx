@@ -22,19 +22,19 @@ const DesignModal: React.FC<DesignModalProps> = ({ isOpen, onClose, onApprove, o
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-      <div 
+      <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
         onClick={onClose}
       ></div>
-      
+
       <div className="relative w-full max-w-2xl bg-[#2E2B38] border border-[#4A4A5A] rounded-[2.5rem] shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300 overflow-hidden">
         <div className="p-8">
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-[#F5F7FA] font-rubik uppercase tracking-tight">Complete Design Review</h2>
+              <h2 className="text-2xl font-bold text-[#F5F7FA] font-rubik uppercase tracking-tight">COMPLETE DESIGN REVIEW</h2>
               <p className="text-[#A0AEC0] text-sm mt-1">Project: Sharma Residence • Concept 3.0</p>
             </div>
-            <button 
+            <button
               onClick={onClose}
               className="p-2 hover:bg-[#24212b] rounded-full text-[#A0AEC0] transition-colors"
             >
@@ -50,13 +50,13 @@ const DesignModal: React.FC<DesignModalProps> = ({ isOpen, onClose, onApprove, o
               <div className="aspect-video bg-[#24212b] rounded-2xl border border-[#4A4A5A] flex items-center justify-center overflow-hidden relative group">
                 <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=800" alt="Living Room" className="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                   <span className="text-[10px] font-black text-white uppercase tracking-widest bg-black/60 px-3 py-1 rounded">Main View</span>
+                  <span className="text-[10px] font-black text-white uppercase tracking-widest bg-black/60 px-3 py-1 rounded">Main View</span>
                 </div>
               </div>
               <div className="aspect-video bg-[#24212b] rounded-2xl border border-[#4A4A5A] flex items-center justify-center overflow-hidden relative group">
                 <img src="https://images.unsplash.com/photo-1616486341351-702524479580?auto=format&fit=crop&q=80&w=800" alt="Bedroom" className="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                   <span className="text-[10px] font-black text-white uppercase tracking-widest bg-black/60 px-3 py-1 rounded">Top View</span>
+                  <span className="text-[10px] font-black text-white uppercase tracking-widest bg-black/60 px-3 py-1 rounded">Top View</span>
                 </div>
               </div>
             </div>
@@ -84,19 +84,19 @@ const DesignModal: React.FC<DesignModalProps> = ({ isOpen, onClose, onApprove, o
             {showRevisionForm && (
               <div className="animate-in slide-in-from-top-2 duration-300">
                 <label className="block text-xs font-black text-[#A0AEC0] uppercase tracking-widest mb-2 ml-1">Additional Specifications / Revisions</label>
-                <textarea 
+                <textarea
                   className="w-full bg-[#24212b] border border-[#4A4A5A] rounded-2xl p-4 text-[#F5F7FA] text-sm focus:ring-1 focus:ring-[#fafa33] outline-none min-h-[100px]"
                   placeholder="e.g. Change the wall color to charcoal grey..."
                   value={revisionSpecs}
                   onChange={(e) => setRevisionSpecs(e.target.value)}
                 />
                 <div className="flex justify-end mt-2">
-                   <button 
+                  <button
                     onClick={handleRevisionSubmit}
                     className="bg-[#782e87] text-white px-6 py-2 rounded-xl text-xs font-bold hover:bg-[#8e3ba0]"
-                   >
-                     Submit Revision
-                   </button>
+                  >
+                    Submit Revision
+                  </button>
                 </div>
               </div>
             )}
@@ -104,14 +104,14 @@ const DesignModal: React.FC<DesignModalProps> = ({ isOpen, onClose, onApprove, o
         </div>
 
         <div className="p-8 bg-[#24212b]/50 border-t border-[#4A4A5A] flex flex-col sm:flex-row gap-4">
-          <button 
+          <button
             onClick={() => setShowRevisionForm(!showRevisionForm)}
             className="flex-1 px-8 py-4 rounded-2xl bg-[#2E2B38] border border-[#4A4A5A] text-[#F5F7FA] font-bold hover:bg-[#393645] transition-all font-rubik"
           >
             {showRevisionForm ? "Cancel Revision" : "Request Revisions"}
           </button>
           {!showRevisionForm && (
-            <button 
+            <button
               onClick={onApprove}
               className="flex-1 px-8 py-4 rounded-2xl bg-[#fafa33] text-[#24212b] font-black hover:bg-[#ffff4d] transition-all shadow-lg shadow-[#fafa33]/10 font-rubik"
             >

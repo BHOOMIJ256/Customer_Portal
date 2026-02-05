@@ -31,7 +31,8 @@ class MockStore {
     submitDetails(phone: string, details: any) {
         const state = this.getClientState(phone);
         state.details = details;
-        state.status = 'Estimate requested';
+        // Skip 'Estimate requested' and go straight to 'Estimate Provided' for UI Demo
+        state.status = ProjectStage.ESTIMATE_PROVIDED;
         this.states[phone] = { ...state };
         this.notify();
     }
