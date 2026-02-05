@@ -1,8 +1,27 @@
 [
     {
+        "id": "CS-001",
         "phone_no": "9876543210",
         "topic": "Material Selection - Living Room",
         "date": "2023-10-20",
-        "status": "Scheduled"
+        "time": "14:00",
+        "duration": "1 hour",
+        "status": "Scheduled",
+        "type": "Online",
+        "meeting_link": "https://meet.google.com/abc-defg-hij",
+        "notes": "Discussing laminates and veneer options.",
+        "requested_by": "client"
+    },
+    {
+        "id": "CS-002",
+        "phone_no": "9876543210",
+        "topic": "Initial Layout Review",
+        "date": "2023-10-05",
+        "time": "11:00",
+        "duration": "45 mins",
+        "status": "Completed",
+        "type": "In-Person",
+        "notes": "Client approved layout Option B.",
+        "requested_by": "admin"
     }
 ]

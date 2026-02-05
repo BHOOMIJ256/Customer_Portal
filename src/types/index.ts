@@ -1,6 +1,9 @@
 
 export enum ProjectStage {
   LEAD_COLLECTED = 'Lead Collected',
+  CONTACTED = 'Contacted',
+  SITE_VISIT = 'Site Visit / Analysis',
+  ESTIMATE_GENERATION = 'Estimate Generation',
   ESTIMATE_PROVIDED = 'Estimate Provided',
   DESIGN_PHASE = 'Design Phase',
   BOOKING_PAYMENT = 'Booking Payment',
