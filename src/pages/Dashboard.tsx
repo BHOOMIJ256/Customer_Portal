@@ -276,7 +276,6 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
                   clients={data?.allClients || []}
                   onAddLead={() => setIsAddLeadOpen(true)}
                   onSelectClient={(client) => {
-                    // Cast Client to User, ensuring role is compatible
                     const userClient: User = {
                       ...client,
                       role: 'client'
@@ -284,36 +283,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
                     setSelectedClient(userClient);
                   }} />
               ) : (
-                <>
-                  <div className="flex items-center justify-between px-1">
-                    <h3 className="text-xs font-black text-[#A0AEC0] uppercase tracking-[0.2em] font-rubik">Current Phase</h3>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-[10px] font-black text-[#24212b] bg-[#fafa33] px-3 py-1 rounded-full uppercase tracking-wider">
-                        {displayedUser.currentStage}
-                      </span>
-                    </div>
-                  </div>
-
-                  <Timeline
-                    currentStage={displayedUser.currentStage}
-                    onAction={handleTimelineAction}
-                    isViewerAdmin={currentUser.role === 'admin'}
-                  />
-
-                  <div className="mt-8 pt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-5 px-1 border-t border-[#4A4A5A]">
-                    <div className="text-[11px] text-[#A0AEC0] font-black uppercase tracking-widest flex items-center">
-                      <span className="w-2 h-2 bg-[#fafa33] rounded-full mr-2 shadow-sm shadow-[#fafa33]/50"></span>
-                      Last Update: <span className="text-[#F5F7FA] ml-2">{displayedUser.lastUpdate}</span>
-                    </div>
-                    <button
-                      onClick={() => setActiveSegment('Consultation')}
-                      className="bg-[#2E2B38] hover:bg-[#393645] text-[#F5F7FA] px-6 py-3 rounded-2xl text-xs font-bold transition-all flex items-center border border-[#4A4A5A] group shadow-lg"
-                    >
-                      Talk to Designer
-                      <span className="ml-2 transform group-hover:translate-x-1 transition-transform text-[#fafa33]">→</span>
-                    </button>
-                  </div>
-                </>
+                <div className="animate-in fade-in duration-300">
+                  <SegmentContent type="Recents" />
+                </div>
               )}
             </div>
           ) : (

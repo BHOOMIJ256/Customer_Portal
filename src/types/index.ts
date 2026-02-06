@@ -74,13 +74,19 @@ export interface OtherDocument {
 }
 
 export interface ConsultationSession {
+  id?: string;
   phone_number: string;
   subject: string;
+  topic?: string; // Alias for subject in some UI components
   description: string;
+  notes?: string; // Alias for description
   date: string;
   time: string;
+  duration?: string;
   status: 'Scheduled' | 'Completed' | 'Pending';
   consultant: string;
+  type?: string;
+  requested_by?: string;
 }
 
 export interface EstimateSubmission {
