@@ -2,7 +2,7 @@
 import React from 'react';
 import { SegmentType } from '../types';
 
-const segments: SegmentType[] = ['Recents', 'Consultation', 'Payments', 'Invoices', 'My Documents', 'Tickets'];
+const segments: SegmentType[] = ['Recents', 'Consultation', 'Payments', 'Invoices', 'My Documents', 'Tickets', 'Other Documents'];
 
 interface SegmentLinksProps {
   activeSegment: SegmentType;

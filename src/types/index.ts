@@ -112,4 +112,4 @@ export interface PortalData {
   allClients?: User[]; // For admin view
 }
 
-export type SegmentType = 'Recents' | 'Consultation' | 'Payments' | 'Invoices' | 'My Documents' | 'Tickets';
+export type SegmentType = 'Recents' | 'Consultation' | 'Payments' | 'Invoices' | 'My Documents' | 'Other Documents' | 'Tickets';

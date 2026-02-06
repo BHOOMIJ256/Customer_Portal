@@ -333,30 +333,79 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
     </div>
   );
 
-  const renderDocuments = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-      {data?.documents && data.documents.length > 0 ? data.documents.map((doc, idx) => (
-        <a key={idx} href={doc.url} target="_blank" rel="noreferrer" className="bg-[#2E2B38] border border-[#4A4A5A] p-5 rounded-[2rem] flex items-center group hover:border-[#fafa33]/30 transition-all cursor-pointer">
-          <div className="w-12 h-12 rounded-2xl bg-[#24212b] flex items-center justify-center mr-4 text-[#782e87] group-hover:text-[#fafa33] transition-colors">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+  /* -------------------------------------------------------------------------
+   * DOCUMENTS TAB IMPLEMENTATION
+   * ----------------------------------------------------------------------- */
+
+  // Mock Data for Documents
+  const mockMyDocuments: any[] = [
+    {
+      subject: 'My Identity Proof',
+      description: 'Aadhar Card / PAN Card copy submitted for verification.',
+      url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+    },
+    {
+      subject: 'Property Layout',
+      description: 'Original floor plan provided by builder.',
+      url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+    }
+  ];
+
+  const mockOtherDocuments: any[] = [
+    {
+      subject: 'Material Catalog 2024',
+      description: 'Latest collection of laminates and veneers.',
+      url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+    },
+    {
+      subject: 'Service Agreement',
+      description: 'Signed copy of the design service agreement.',
+      url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+    },
+    {
+      subject: 'Warranty Card',
+      description: 'Standard warranty terms for modular furniture.',
+      url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+    }
+  ];
+
+  const renderGenericDocuments = (docs: any[], emptyMsg: string) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
+      {docs && docs.length > 0 ? docs.map((doc, idx) => (
+        <div
+          key={idx}
+          onClick={(e) => {
+            e.stopPropagation();
+            window.open(doc.url, '_blank', 'noopener,noreferrer');
+          }}
+          className="bg-[#1E1B24] border border-[#3A3A4A] p-6 rounded-[2rem] flex items-center gap-5 group hover:border-[#fafa33]/40 hover:bg-[#24212b] transition-all cursor-pointer relative overflow-hidden"
+        >
+          {/* Icon Container */}
+          <div className="w-14 h-14 rounded-2xl bg-[#2E2B38] flex items-center justify-center text-[#fafa33] shadow-lg shadow-black/20 group-hover:scale-110 transition-transform">
+            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
           </div>
-          <div className="flex-1">
-            <h4 className="text-sm font-bold text-[#F5F7FA] group-hover:text-[#fafa33] transition-colors">{doc.subject}</h4>
-            <div className="flex items-center text-[10px] text-[#A0AEC0] font-black uppercase tracking-wider mt-1">
-              <span>{doc.description}</span>
-            </div>
+
+          <div className="flex-1 min-w-0">
+            <h4 className="text-base font-bold text-[#F5F7FA] mb-1 truncate group-hover:text-[#fafa33] transition-colors font-rubik">
+              {doc.subject}
+            </h4>
+            <p className="text-xs text-[#A0AEC0] font-medium leading-relaxed line-clamp-2">
+              {doc.description}
+            </p>
           </div>
-          <button className="text-[#A0AEC0] hover:text-[#fafa33]">
+
+          {/* Arrow Icon */}
+          <div className="text-[#4A4A5A] group-hover:text-[#fafa33] group-hover:translate-x-1 transition-all">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-          </button>
-        </a>
+          </div>
+        </div>
       )) : (
-        <div className="col-span-full bg-[#2E2B38]/50 border border-[#4A4A5A] rounded-[2rem] p-8 text-center">
-          <p className="text-[#A0AEC0] text-sm italic">No shared documents found.</p>
+        <div className="col-span-full bg-[#2E2B38]/50 border border-[#4A4A5A] rounded-[2rem] p-10 text-center border-dashed">
+          <p className="text-[#A0AEC0] text-sm italic">{emptyMsg}</p>
         </div>
       )}
     </div>
@@ -621,7 +670,8 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
           case 'Recents': return renderRecents(demoStage);
           case 'Consultation': return renderConsultation();
           case 'Payments': return renderPayments();
-          case 'My Documents': return renderDocuments();
+          case 'My Documents': return renderGenericDocuments(mockMyDocuments, 'No personal documents found.');
+          case 'Other Documents': return renderGenericDocuments(mockOtherDocuments, 'No other documents shared.');
           case 'Invoices': return renderInvoices();
           case 'Tickets': return renderTickets();
           default: return null;
