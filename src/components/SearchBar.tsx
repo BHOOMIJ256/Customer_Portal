@@ -90,7 +90,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onNavigate }) => {
             disabled={loading}
             className="bg-[#fafa33] text-[#24212b] px-8 py-3 rounded-xl text-sm font-black hover:bg-[#ffff4d] transition-all active:scale-95 shadow-xl shadow-[#fafa33]/10 font-rubik flex items-center"
           >
-            {loading ? 'Thinking...' : 'Ask AI'}
+            {loading ? 'Thinking...' : 'GO'}
           </button>
         </div>
       </div>

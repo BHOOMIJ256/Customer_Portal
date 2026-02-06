@@ -199,39 +199,67 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
     setIsModalOpen(false);
   };
 
-  const renderPayments = () => (
-    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-      <div className="bg-[#2E2B38] border border-[#4A4A5A] rounded-[2rem] overflow-hidden">
-        <table className="w-full text-left text-sm">
-          <thead className="text-[10px] font-black text-[#A0AEC0] uppercase tracking-widest bg-[#24212b]/50 border-b border-[#4A4A5A]">
-            <tr>
-              <th className="px-6 py-4">Transaction</th>
-              <th className="px-6 py-4">Date</th>
-              <th className="px-6 py-4">Amount</th>
-              <th className="px-6 py-4">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#4A4A5A]">
-            {data?.payments && data.payments.length > 0 ? data.payments.map((p, idx) => (
-              <tr key={idx} className="hover:bg-[#24212b]/30 transition-colors">
-                <td className="px-6 py-5 font-bold text-[#F5F7FA]">{p.description}</td>
-                <td className="px-6 py-5 text-[#A0AEC0]">{p.date}</td>
-                <td className="px-6 py-5 font-bold text-[#F5F7FA]">₹{p.amount.toLocaleString()}</td>
-                <td className="px-6 py-5">
-                  <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-md ${p.status === 'Paid' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-[#fafa33]/10 text-[#fafa33]'
-                    }`}>{p.status}</span>
-                </td>
-              </tr>
-            )) : (
+  const renderPayments = () => {
+    const DUMMY_PAYMENTS = [
+      {
+        phone_number: "9876543210",
+        invoice_id: "INV-2024-001",
+        description: "Booking Advance",
+        amount: 150000,
+        status: "Payment received",
+        date: "2024-01-15"
+      },
+      {
+        phone_number: "9876543210",
+        invoice_id: "INV-2024-005",
+        description: "Design Phase Payment",
+        amount: 75000,
+        status: "Payment received",
+        date: "2024-02-01"
+      },
+      {
+        phone_number: "9876543210",
+        invoice_id: "INV-2024-012",
+        description: "Final Project Settlement",
+        amount: 225000,
+        status: "Payment received",
+        date: "2024-02-15"
+      }
+    ];
+
+    return (
+      <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="bg-[#2E2B38] border border-[#4A4A5A] rounded-[2rem] overflow-hidden">
+          <table className="w-full text-left text-sm">
+            <thead className="text-[10px] font-black text-[#A0AEC0] uppercase tracking-widest bg-[#24212b]/50 border-b border-[#4A4A5A]">
               <tr>
-                <td colSpan={4} className="px-6 py-10 text-center text-[#A0AEC0] italic">No payment history found.</td>
+                <th className="px-6 py-4">Invoice ID</th>
+                <th className="px-6 py-4">Description</th>
+                <th className="px-6 py-4">Date</th>
+                <th className="px-6 py-4">Amount</th>
+                <th className="px-6 py-4">Status</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-[#4A4A5A]">
+              {DUMMY_PAYMENTS.map((p, idx) => (
+                <tr key={idx} className="hover:bg-[#24212b]/30 transition-colors">
+                  <td className="px-6 py-5 font-bold text-[#fafa33]/90 text-[11px] font-rubik tracking-wider">{p.invoice_id}</td>
+                  <td className="px-6 py-5 font-bold text-[#F5F7FA]">{p.description}</td>
+                  <td className="px-6 py-5 text-[#A0AEC0]">{p.date}</td>
+                  <td className="px-6 py-5 font-bold text-[#F5F7FA]">₹{p.amount.toLocaleString()}</td>
+                  <td className="px-6 py-5">
+                    <span className="text-[10px] font-black uppercase px-3 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      {p.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderConsultation = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -625,6 +653,7 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
         isOpen={isEstimateModalOpen}
         onClose={() => setEstimateModalOpen(false)}
         currentStage={demoStage}
+        userRole="client"
         onApprove={() => {
           setEstimateModalOpen(false);
           setDemoStage(ProjectStage.DESIGN_PHASE);
