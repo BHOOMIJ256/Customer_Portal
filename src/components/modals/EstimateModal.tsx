@@ -21,13 +21,13 @@ const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprov
 
   const [formData, setFormData] = React.useState({
     city: '',
-    property_type: 'Residential',
-    bhk: '2BHK',
+    property_type: 'Apartment',
+    bhk: '2 BHK',
     square_feat: '',
     layout_url: '',
     wiring_done: 'No',
-    possession_status: 'Ready to Move',
-    service_required: 'Full Interior'
+    possession_status: 'Already Possessed',
+    service_required: ''
   });
 
   const [adminDoc, setAdminDoc] = React.useState({
@@ -105,25 +105,78 @@ const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprov
         onClick={onClose}
       ></div>
 
-      <div className="relative w-full max-w-lg bg-[#2E2B38] border border-[#4A4A5A] rounded-[2.5rem] shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300 overflow-hidden">
+      <div className="relative w-full max-w-lg bg-[#2E2B38] border border-[#4A4A5A] rounded-[2rem] shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300 overflow-hidden flex flex-col">
         {isLeadCollected && !isAdmin ? (
-          /* Reuse existing Lead Form logic for "Fill Details" if needed, or simplified */
-          <div className="p-8">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-[#F5F7FA] font-rubik">Project Initiation</h2>
-              <button onClick={onClose} className="p-2 hover:bg-[#24212b] rounded-full text-[#A0AEC0] transition-colors"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
+          /* Lead Form logic for "Fill Details" - Compacted for no-scroll */
+          <div className="p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#F5F7FA] font-rubik">Project Initiation</h2>
+              <button onClick={onClose} className="p-1.5 hover:bg-[#24212b] rounded-full text-[#A0AEC0] transition-colors"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
             </div>
-            <form onSubmit={handleSubmitDetails} className="space-y-4">
-              {/* ... (Keep existing form fields for Lead Collection abbreviated for now or keep same) ... */}
-              {/* For brevity, I am keeping the form fields basically same but wrapping them cleanly */}
-              <div className="space-y-4">
-                <div><label className="text-[10px] font-black text-[#A0AEC0] uppercase tracking-widest ml-1">City</label><input required className="w-full bg-[#24212b] border border-[#4A4A5A] rounded-xl px-4 py-3 text-sm text-[#F5F7FA] focus:border-[#fafa33] outline-none" value={formData.city} onChange={e => setFormData(p => ({ ...p, city: e.target.value }))} /></div>
+            <form onSubmit={handleSubmitDetails} className="space-y-3">
+              <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
-                  <div><label className="text-[10px] font-black text-[#A0AEC0] uppercase tracking-widest ml-1">BHK</label><select className="w-full bg-[#24212b] border border-[#4A4A5A] rounded-xl px-4 py-3 text-sm text-[#F5F7FA] focus:border-[#fafa33] outline-none" value={formData.bhk} onChange={e => setFormData(p => ({ ...p, bhk: e.target.value }))} ><option>2BHK</option><option>3BHK</option></select></div>
-                  <div><label className="text-[10px] font-black text-[#A0AEC0] uppercase tracking-widest ml-1">Sq Ft</label><input required type="number" className="w-full bg-[#24212b] border border-[#4A4A5A] rounded-xl px-4 py-3 text-sm text-[#F5F7FA] focus:border-[#fafa33] outline-none" value={formData.square_feat} onChange={e => setFormData(p => ({ ...p, square_feat: e.target.value }))} /></div>
+                  <div>
+                    <label className="text-[9px] font-black text-[#A0AEC0] uppercase tracking-widest ml-1">City</label>
+                    <input required className="w-full bg-[#24212b] border border-[#4A4A5A] rounded-lg px-3 py-2 text-sm text-[#F5F7FA] focus:border-[#fafa33] outline-none" value={formData.city} onChange={e => setFormData(p => ({ ...p, city: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-[#A0AEC0] uppercase tracking-widest ml-1">Property Type</label>
+                    <select className="w-full bg-[#24212b] border border-[#4A4A5A] rounded-lg px-3 py-2 text-sm text-[#F5F7FA] focus:border-[#fafa33] outline-none" value={formData.property_type} onChange={e => setFormData(p => ({ ...p, property_type: e.target.value }))}>
+                      <option>Apartment</option>
+                      <option>Villa</option>
+                      <option>Independent House</option>
+                      <option>Commercial</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[9px] font-black text-[#A0AEC0] uppercase tracking-widest ml-1">BHK</label>
+                    <select className="w-full bg-[#24212b] border border-[#4A4A5A] rounded-lg px-3 py-2 text-sm text-[#F5F7FA] focus:border-[#fafa33] outline-none" value={formData.bhk} onChange={e => setFormData(p => ({ ...p, bhk: e.target.value }))}>
+                      <option>1 BHK</option>
+                      <option>2 BHK</option>
+                      <option>3 BHK</option>
+                      <option>4+ BHK</option>
+                      <option>Commercial</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-[#A0AEC0] uppercase tracking-widest ml-1">Square Feet</label>
+                    <input required type="number" className="w-full bg-[#24212b] border border-[#4A4A5A] rounded-lg px-3 py-2 text-sm text-[#F5F7FA] focus:border-[#fafa33] outline-none" value={formData.square_feat} onChange={e => setFormData(p => ({ ...p, square_feat: e.target.value }))} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[9px] font-black text-[#A0AEC0] uppercase tracking-widest ml-1">Electrical Wiring</label>
+                    <select className="w-full bg-[#24212b] border border-[#4A4A5A] rounded-lg px-3 py-2 text-sm text-[#F5F7FA] focus:border-[#fafa33] outline-none" value={formData.wiring_done} onChange={e => setFormData(p => ({ ...p, wiring_done: e.target.value }))}>
+                      <option>Yes</option>
+                      <option>No</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-[#A0AEC0] uppercase tracking-widest ml-1">Possession Status</label>
+                    <select className="w-full bg-[#24212b] border border-[#4A4A5A] rounded-lg px-3 py-2 text-sm text-[#F5F7FA] focus:border-[#fafa33] outline-none" value={formData.possession_status} onChange={e => setFormData(p => ({ ...p, possession_status: e.target.value }))}>
+                      <option>Already Possessed</option>
+                      <option>In Progress</option>
+                      <option>Yet to Receive</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[9px] font-black text-[#A0AEC0] uppercase tracking-widest ml-1">Layout URL</label>
+                  <input className="w-full bg-[#24212b] border border-[#4A4A5A] rounded-lg px-3 py-2 text-sm text-[#F5F7FA] focus:border-[#fafa33] outline-none" placeholder="Paste layout / floor plan link (optional)" value={formData.layout_url} onChange={e => setFormData(p => ({ ...p, layout_url: e.target.value }))} />
+                </div>
+
+                <div>
+                  <label className="text-[9px] font-black text-[#A0AEC0] uppercase tracking-widest ml-1">Services Required</label>
+                  <textarea className="w-full bg-[#24212b] border border-[#4A4A5A] rounded-lg px-3 py-2 text-sm text-[#F5F7FA] focus:border-[#fafa33] outline-none min-h-[60px] resize-none" placeholder="Briefly describe the services you are looking for" value={formData.service_required} onChange={e => setFormData(p => ({ ...p, service_required: e.target.value }))} />
                 </div>
               </div>
-              <button type="submit" disabled={isSubmitting} className="w-full bg-[#fafa33] text-[#24212b] py-4 rounded-xl text-sm font-black hover:bg-[#ffff4d] transition-all disabled:opacity-50 mt-4">{isSubmitting ? 'Processing...' : 'Submit Details'}</button>
+              <button type="submit" disabled={isSubmitting} className="w-full bg-[#fafa33] text-[#24212b] py-3.5 rounded-xl text-sm font-black hover:bg-[#ffff4d] transition-all disabled:opacity-50 mt-2">{isSubmitting ? 'Processing...' : 'Submit Details'}</button>
             </form>
           </div>
         ) : (

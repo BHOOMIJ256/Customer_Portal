@@ -515,31 +515,34 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
         id: 'step-1',
         stage: ProjectStage.LEAD_COLLECTED,
         title: 'Project Initiation',
-        description: 'Provide your requirements to get a personalized estimate.',
+        description: 'Share your space details and requirements to get a personalized estimate.',
         statusLabel: 'Action Required',
         actionLabel: 'Fill Details',
         isAction: true,
         stats: [
-          { label: 'Step', value: '1/4' },
-          { label: 'Est. Time', value: '5 Mins' }
+          { label: 'Details Shared', value: 'No' },
+          { label: 'Estimate Generated', value: 'No' },
+          { label: 'Project Created On', value: 'Today' },
+          { label: 'Reference ID', value: 'PRJ-AUTO' }
         ],
         onAction: () => {
-          setEditingSession(undefined); // Reset
+          setEditingSession(undefined);
           setEstimateModalOpen(true);
         }
       },
       {
         id: 'step-2',
         stage: ProjectStage.ESTIMATE_PROVIDED,
-        title: 'Residential Interior Design - 3BHK',
-        description: 'Complete interior design for luxury apartment in Bandra West.',
+        title: 'Project Estimate',
+        description: 'A personalized estimate has been prepared based on the information provided.',
         statusLabel: 'Estimate Ready',
         actionLabel: 'View Details',
         isAction: true,
         stats: [
-          { label: 'Amount', value: '₹4,50,000' },
-          { label: 'Due', value: '₹0' },
-          { label: 'Viewers', value: '2' }
+          { label: 'Estimate Generated', value: 'Yes' },
+          { label: 'Estimate Version', value: 'v1.0' },
+          { label: 'Estimate Views', value: '2' },
+          { label: 'Last Updated', value: '1 day ago' }
         ],
         onAction: () => setEstimateModalOpen(true)
       },
@@ -547,44 +550,50 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
         id: 'step-3',
         stage: ProjectStage.DESIGN_PHASE,
         title: 'Design Phase Review',
-        description: 'Review the proposed design concepts and layouts.',
+        description: 'Review and validate the proposed design concepts and layouts.',
         statusLabel: 'Design Ready',
         actionLabel: 'Review Design',
         isAction: true,
         stats: [
-          { label: 'Concepts', value: '3' },
-          { label: 'Revisions', value: '0' }
+          { label: 'Design Shared', value: 'Yes' },
+          { label: 'Concept Versions', value: '3' },
+          { label: 'Design Views', value: '2' },
+          { label: 'Revisions Raised', value: '0' },
+          { label: 'Last Updated', value: '2 days ago' }
         ],
         onAction: () => setDesignModalOpen(true)
       },
       {
         id: 'step-4',
         stage: ProjectStage.BOOKING_PAYMENT,
-        title: 'Project Booking',
-        description: 'Secure your implementation slot with the booking advance.',
-        statusLabel: 'Payment Due',
+        title: 'Project Confirmation',
+        description: 'Confirm the project to proceed with planning and execution scheduling.',
+        statusLabel: 'Pending Confirmation',
         actionLabel: 'Make Payment',
         isAction: true,
         stats: [
-          { label: 'Amount', value: '₹1,50,000' },
-          { label: 'Method', value: 'Secure' }
+          { label: 'Estimate Approved', value: 'Yes' },
+          { label: 'Confirmation Type', value: 'Booking' },
+          { label: 'Payment Reference', value: 'Generated' },
+          { label: 'Last Updated', value: 'Today' }
         ],
         onAction: () => setPaymentModalOpen(true)
       },
       {
         id: 'step-5',
         stage: ProjectStage.PROJECT_STARTED,
-        title: 'Shipping / Production',
-        description: 'Your custom furniture is now in production and will be shipped soon.',
+        title: 'Production & Preparation',
+        description: 'Execution preparation and internal coordination are currently in progress.',
         statusLabel: 'In Progress',
         actionLabel: 'View Status',
         isAction: true,
         stats: [
-          { label: 'Factory', value: 'Active' },
-          { label: 'Quality', value: 'Checked' }
+          { label: 'Execution Phase', value: 'Preparation' },
+          { label: 'Team Assigned', value: 'Yes' },
+          { label: 'Internal Checks', value: 'Ongoing' },
+          { label: 'Last Updated', value: 'Today' }
         ],
         onAction: () => {
-          // Dummy progression
           setDemoStage(ProjectStage.INSTALLATION);
           toast.success('Production completed! Moving to Installation.');
         }
@@ -593,31 +602,34 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
         id: 'step-6',
         stage: ProjectStage.INSTALLATION,
         title: 'Installation',
-        description: 'Assembly and installation of modular units at your site.',
+        description: 'On-site execution is being carried out as per the finalized plan.',
         statusLabel: 'In Progress',
         actionLabel: 'View Details',
         isAction: true,
         stats: [
-          { label: 'Team', value: 'On-site' },
-          { label: 'Progress', value: '75%' }
+          { label: 'Execution Mode', value: 'On-site' },
+          { label: 'Tasks Completed', value: '75%' },
+          { label: 'Installation Days', value: 'In Progress' },
+          { label: 'Last Updated', value: 'Today' }
         ],
         onAction: () => {
-          // Dummy progression
           setDemoStage(ProjectStage.POST_INSTALLATION);
-          toast.success('Installation completed! Final payment pending.');
+          toast.success('Installation completed! Final settlement pending.');
         }
       },
       {
         id: 'step-7',
         stage: ProjectStage.POST_INSTALLATION,
-        title: 'Post-Installation Payment',
-        description: 'Final project settlement after successful installation.',
+        title: 'Project Closure',
+        description: 'Final settlement and closure of the project after successful completion.',
         statusLabel: 'Action Required',
         actionLabel: 'Make Payment',
         isAction: true,
         stats: [
-          { label: 'Amount', value: '₹75,000' },
-          { label: 'Balance', value: 'Last' }
+          { label: 'Completion Confirmed', value: 'Yes' },
+          { label: 'Closure Type', value: 'Final' },
+          { label: 'Payment Reference', value: 'Generated' },
+          { label: 'Last Updated', value: 'Today' }
         ],
         onAction: () => setPaymentModalOpen(true)
       }
