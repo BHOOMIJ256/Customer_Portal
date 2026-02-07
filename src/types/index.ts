@@ -1,116 +1,88 @@
-
-export enum ProjectStage {
-  LEAD_COLLECTED = 'Lead Collected',
-  CONTACTED = 'Contacted',
-  SITE_VISIT = 'Site Visit / Analysis',
-  ESTIMATE_GENERATION = 'Estimate Generation',
-  ESTIMATE_PROVIDED = 'Estimate Provided',
-  DESIGN_PHASE = 'Design Phase',
-  BOOKING_PAYMENT = 'Booking Payment',
-  AGREEMENT_SIGNED = 'Agreement Signed',
-  PROJECT_STARTED = 'Project Started',
-  IN_PROGRESS = 'In Progress',
-  SHIPPING_REQUEST = 'Shipping Request',
-  SHIPPED = 'Shipped',
-  INSTALLATION = 'Installation',
-  POST_INSTALLATION = 'Post-Installation',
-  COMPLETED = 'Project Completed'
-}
-
 export interface User {
-  name: string;
   phoneNumber: string;
+  name: string;
   role: 'admin' | 'client' | 'architect';
-  currentStage?: ProjectStage;
-  lastUpdate?: string;
+  created_datetime?: string;
+  updated_datetime?: string;
 }
 
-export interface HritaUser {
-  phone_number: string;
-  name: string;
-}
-
-export interface AppUser {
-  phone_number: string;
-  name: string;
-}
-
-export interface Opportunity {
+export interface Estimate {
   id: string;
-  phone_number: string;
-  date_requested: string;
-  date_prepared: string;
-  date_approved: string;
-  booking_amount: number;
-  paid_amount: number;
-  payment_due: number;
-  status: ProjectStage | string;
-  estimate_views: string; // comma separated phone numbers
-  my_doc_id: string;
-}
-
-export interface Invoice {
-  phone_number: string;
-  id: string;
-  description: string;
-  date: string;
-  amount: number;
-}
-
-export interface Payment {
-  phone_number: string;
-  invoice_id: string;
-  description: string;
-  amount: number;
-  status: 'Paid' | 'Pending' | 'Due';
-  date: string;
-}
-
-export interface OtherDocument {
-  phone_number: string;
-  subject: string;
-  description: string;
-  url: string;
-}
-
-export interface ConsultationSession {
-  id?: string;
-  phone_number: string;
-  subject: string;
-  topic?: string; // Alias for subject in some UI components
-  description: string;
-  notes?: string; // Alias for description
-  date: string;
-  time: string;
-  duration?: string;
-  status: 'Scheduled' | 'Completed' | 'Pending';
-  consultant: string;
-  type?: string;
-  requested_by?: string;
-}
-
-export interface EstimateSubmission {
   phone_number: string;
   city: string;
   property_type: string;
   bhk: string;
-  square_feat: string;
-  layout_url: string;
+  square_feat: number;
+  layout_url?: string;
   wiring_done: string;
   possession_status: string;
   service_required: string;
+  date_requested: string;
+  date_prepared?: string;
+  date_approved?: string;
+  document_id?: string;
+  status: 'pending' | 'created' | 'changes requested' | 'approved';
+  estimate_viewers?: string;
+  created_datetime: string;
+  updated_datetime: string;
+}
+
+export interface Design {
+  id: string;
+  estimate_id: string;
+  phone_number: string;
+  subject: string;
+  description: string;
+  document_id: string;
+  status: 'pending' | 'changes requested' | 'approved';
+  design_viewers?: string;
+  created_datetime: string;
+  updated_datetime: string;
+}
+
+export interface Opportunity {
+  id: string;
+  estimate_id: string;
+  phone_number: string;
+  booking_amount: number;
+  booking_status: 'pending' | 'verified';
+  paid_amount: number;
+  payment_due: number;
+  shipping_amount: number;
+  shipping_status: 'pending' | 'verified';
+  installation_status: 'pending' | 'completed';
+  post_install_amount: number;
+  post_install_payment_status: 'pending' | 'verified';
+  created_datetime: string;
+  updated_datetime: string;
+}
+
+export interface Payment {
+  id: string;
+  invoice_id?: string;
+  phone_number: string;
+  description: string;
+  amount: number;
+  status: 'pending' | 'verification pending' | 'paid';
+  date: string;
 }
 
 export interface PortalData {
   user: User;
-  opportunities: Opportunity[];
-  invoices: Invoice[];
-  payments: Payment[];
-  documents: OtherDocument[];
-  myDocuments?: any[];
-  consultations: ConsultationSession[];
-  allClients?: User[]; // For admin view
-  recents?: any[]; // Dynamic cards from backend
+  recents: RecentAction[];
+  allClients: User[];
+  estimates?: Estimate[];
+  designs?: Design[];
+  opportunity?: Opportunity;
+  payments?: Payment[];
 }
 
-export type SegmentType = 'Recents' | 'Consultation' | 'Payments' | 'Invoices' | 'My Documents' | 'Other Documents' | 'Tickets';
+export interface RecentAction {
+  subject: string;
+  description?: string;
+  status: string;
+  action: string;
+  client?: string;
+}
+
+export type SegmentType = 'Recents' | 'Estimates' | 'Designs' | 'Payments' | 'Documents';
