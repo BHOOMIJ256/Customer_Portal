@@ -110,6 +110,7 @@ export interface PortalData {
   myDocuments?: any[];
   consultations: ConsultationSession[];
   allClients?: User[]; // For admin view
+  recents?: any[]; // Dynamic cards from backend
 }
 
 export type SegmentType = 'Recents' | 'Consultation' | 'Payments' | 'Invoices' | 'My Documents' | 'Other Documents' | 'Tickets';

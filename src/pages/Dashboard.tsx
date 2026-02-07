@@ -61,7 +61,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
   const isImpersonating = currentUser.role === 'admin' && selectedClient;
 
   // Fetch client data if impersonating
-  const { data: clientData, refetch: refetchClient } = usePortalData(isImpersonating ? selectedClient?.phoneNumber || null : null);
+  const { data: clientData, refetch: refetchClient } = usePortalData(
+    isImpersonating ? selectedClient?.phoneNumber || null : null,
+    isImpersonating ? 'admin' : undefined
+  );
 
   const [activeSegment, setActiveSegment] = useState<SegmentType>('Recents');
   const [isEstimateOpen, setIsEstimateOpen] = useState(false);
@@ -284,7 +287,13 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
                   }} />
               ) : (
                 <div className="animate-in fade-in duration-300">
-                  <SegmentContent type="Recents" />
+                  <SegmentContent
+                    type="Recents"
+                    recents={(isImpersonating ? clientData : data)?.recents}
+                    userRole={currentUser.role}
+                    portalData={isImpersonating ? clientData : data}
+                    onRefresh={() => { refetch(); if (isImpersonating) refetchClient(); }}
+                  />
                 </div>
               )}
             </div>
@@ -296,7 +305,13 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
                   <p className="text-sm text-[#A0AEC0] mt-1">Manage all your {activeSegment.toLowerCase()} related to this project.</p>
                 </div>
               )}
-              <SegmentContent type={activeSegment} />
+              <SegmentContent
+                type={activeSegment}
+                recents={(isImpersonating ? clientData : data)?.recents} // Though likely unused for non-recents
+                userRole={currentUser.role}
+                portalData={isImpersonating ? clientData : data}
+                onRefresh={() => { refetch(); if (isImpersonating) refetchClient(); }}
+              />
             </div>
           )}
         </section>

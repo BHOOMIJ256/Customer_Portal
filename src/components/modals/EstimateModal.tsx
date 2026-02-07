@@ -14,6 +14,8 @@ interface EstimateModalProps {
   currentStage?: ProjectStage;
 }
 
+import { submitEstimateDetails, adminUploadEstimate, updateStage } from '../../services/api';
+
 const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprove, opportunity, userRole, onUpdate, myDocuments, currentStage }) => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showRevisionInput, setShowRevisionInput] = React.useState(false);
@@ -43,35 +45,45 @@ const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprov
   const isEstimateReady = currentStatus === 'Estimate ready' || currentStatus === ProjectStage.ESTIMATE_PROVIDED;
   const isAdmin = userRole === 'admin';
 
+
   const handleSubmitDetails = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Bypass validation for demo/frontend-only flow
-    const phone = opportunity?.phone_number || 'DEMO_USER';
+    const phone = opportunity?.phone_number || 'DEMO';
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      if (opportunity?.phone_number) {
-        mockStore.submitDetails(phone, formData);
-      }
+    try {
+      await submitEstimateDetails({
+        phone_number: phone,
+        ...formData
+      });
       toast.success('Details submitted successfully!');
-      setIsSubmitting(false);
-      onClose();
-      // Trigger update if provided
       if (onUpdate) onUpdate();
-    }, 500);
+      onClose();
+    } catch (err) {
+      toast.error('Failed to submit details.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleAdminUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!opportunity?.phone_number) return;
     setIsSubmitting(true);
-    setTimeout(() => {
-      mockStore.addDocument(opportunity.phone_number, adminDoc.url);
+    try {
+      await adminUploadEstimate(opportunity.phone_number, {
+        ...adminDoc
+      });
       toast.success('Estimate uploaded successfully!');
-      setIsSubmitting(false);
+      if (onUpdate) onUpdate();
       onClose();
-    }, 500);
+    } catch (err) {
+      toast.error('Failed to upload estimate.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
 
   const handleSuggestChanges = () => {
     if (!revisionText.trim()) {

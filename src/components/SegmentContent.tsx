@@ -3,20 +3,18 @@ import React, { useState } from 'react';
 import { SegmentType, ConsultationSession, ProjectStage } from '../types';
 import consultationsData from '../data/consultations.json';
 import toast from 'react-hot-toast';
+import { updateStage } from '../services/api';
 import EstimateModal from './modals/EstimateModal';
 import DesignModal from './modals/DesignModal';
 import PaymentModal from './modals/PaymentModal';
 
 interface SegmentContentProps {
   type: SegmentType;
+  recents?: any[];
+  userRole?: string;
+  onRefresh?: () => void;
+  portalData?: any; // To pass other data like opportunities needed for modals
 }
-
-// ... (ConsultationModal interface and component remain unchanged)
-// We will skip re-writing ConsultationModal here to save tokens if possible, 
-// but replace_file_content needs context. 
-// Actually, let's just update the top imports and the component start.
-
-// ... (ConsultationModal code) ...
 
 interface ConsultationModalProps {
   isOpen: boolean;
@@ -143,8 +141,10 @@ const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose, 
   );
 };
 
-const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
+
+const SegmentContent: React.FC<SegmentContentProps> = ({ type, recents = [], userRole = 'client', onRefresh, portalData }) => {
   const data = (consultationsData as any);
+
   const [sessions, setSessions] = useState<ConsultationSession[]>(consultationsData as unknown as ConsultationSession[]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSession, setEditingSession] = useState<ConsultationSession | undefined>(undefined);
@@ -506,183 +506,72 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
     return currentIndex > targetIndex;
   };
 
-  const renderRecents = (stage: ProjectStage) => {
-    // Use the demo stage passed in
-    const currentStage = stage;
+  const handleRecentsAction = (card: any) => {
+    switch (card.type) {
+      case 'estimate_request':
+      case 'estimate_view':
+      case 'estimate_review':
+      case 'admin_estimate_upload':
+      case 'admin_estimate_view':
+        setEstimateModalOpen(true);
+        break;
+      case 'design_review':
+      case 'design_view':
+      case 'admin_design_upload':
+      case 'admin_design_view':
+        setDesignModalOpen(true);
+        break;
+      case 'booking_pay':
+      case 'booking_verify':
+      case 'admin_verify_payment':
+        setPaymentModalOpen(true);
+        break;
+      default:
+        toast('Feature coming soon: ' + card.action);
+    }
+  };
 
-    const cards = [
-      {
-        id: 'step-1',
-        stage: ProjectStage.LEAD_COLLECTED,
-        title: 'Project Initiation',
-        description: 'Provide your requirements to get a personalized estimate.',
-        statusLabel: 'Action Required',
-        actionLabel: 'Fill Details',
-        isAction: true,
-        stats: [
-          { label: 'Step', value: '1/4' },
-          { label: 'Est. Time', value: '5 Mins' }
-        ],
-        onAction: () => {
-          setEditingSession(undefined); // Reset
-          setEstimateModalOpen(true);
-        }
-      },
-      {
-        id: 'step-2',
-        stage: ProjectStage.ESTIMATE_PROVIDED,
-        title: 'Residential Interior Design - 3BHK',
-        description: 'Complete interior design for luxury apartment in Bandra West.',
-        statusLabel: 'Estimate Ready',
-        actionLabel: 'View Details',
-        isAction: true,
-        stats: [
-          { label: 'Amount', value: '₹4,50,000' },
-          { label: 'Due', value: '₹0' },
-          { label: 'Viewers', value: '2' }
-        ],
-        onAction: () => setEstimateModalOpen(true)
-      },
-      {
-        id: 'step-3',
-        stage: ProjectStage.DESIGN_PHASE,
-        title: 'Design Phase Review',
-        description: 'Review the proposed design concepts and layouts.',
-        statusLabel: 'Design Ready',
-        actionLabel: 'Review Design',
-        isAction: true,
-        stats: [
-          { label: 'Concepts', value: '3' },
-          { label: 'Revisions', value: '0' }
-        ],
-        onAction: () => setDesignModalOpen(true)
-      },
-      {
-        id: 'step-4',
-        stage: ProjectStage.BOOKING_PAYMENT,
-        title: 'Project Booking',
-        description: 'Secure your implementation slot with the booking advance.',
-        statusLabel: 'Payment Due',
-        actionLabel: 'Make Payment',
-        isAction: true,
-        stats: [
-          { label: 'Amount', value: '₹1,50,000' },
-          { label: 'Method', value: 'Secure' }
-        ],
-        onAction: () => setPaymentModalOpen(true)
-      },
-      {
-        id: 'step-5',
-        stage: ProjectStage.PROJECT_STARTED,
-        title: 'Shipping / Production',
-        description: 'Your custom furniture is now in production and will be shipped soon.',
-        statusLabel: 'In Progress',
-        actionLabel: 'View Status',
-        isAction: true,
-        stats: [
-          { label: 'Factory', value: 'Active' },
-          { label: 'Quality', value: 'Checked' }
-        ],
-        onAction: () => {
-          // Dummy progression
-          setDemoStage(ProjectStage.INSTALLATION);
-          toast.success('Production completed! Moving to Installation.');
-        }
-      },
-      {
-        id: 'step-6',
-        stage: ProjectStage.INSTALLATION,
-        title: 'Installation',
-        description: 'Assembly and installation of modular units at your site.',
-        statusLabel: 'In Progress',
-        actionLabel: 'View Details',
-        isAction: true,
-        stats: [
-          { label: 'Team', value: 'On-site' },
-          { label: 'Progress', value: '75%' }
-        ],
-        onAction: () => {
-          // Dummy progression
-          setDemoStage(ProjectStage.POST_INSTALLATION);
-          toast.success('Installation completed! Final payment pending.');
-        }
-      },
-      {
-        id: 'step-7',
-        stage: ProjectStage.POST_INSTALLATION,
-        title: 'Post-Installation Payment',
-        description: 'Final project settlement after successful installation.',
-        statusLabel: 'Action Required',
-        actionLabel: 'Make Payment',
-        isAction: true,
-        stats: [
-          { label: 'Amount', value: '₹75,000' },
-          { label: 'Balance', value: 'Last' }
-        ],
-        onAction: () => setPaymentModalOpen(true)
-      }
-    ];
-
-    // Filter cards based on sequential logic
-    // We show all cards UP TO the current stage + 1 (the next actionable one)? 
-    // Or just the ones that are unlocked?
-    // User said: "Each bar should appear one after the other, only after the action proceeds with confirm."
-    // This implies we filter the list.
-
-    const relevantCards = cards.filter(card => {
-      // Show if we have passed or are at this stage
-      // Special sub-logic: 
-      // If current is LEAD_COLLECTED -> Show Step 1
-      // If current is ESTIMATE_PROVIDED -> Show Step 1 (Completed) & Step 2
-      // etc.
-      return isStageUnlocked(currentStage, card.stage) ||
-        (card.stage === ProjectStage.ESTIMATE_PROVIDED && currentStage === ProjectStage.ESTIMATE_GENERATION); // Edge case
-    }).reverse(); // Show newest/current stage at top (descending order)
-
+  const renderRecents = () => {
+    if (!recents || recents.length === 0) {
+      return (
+        <div className="bg-[#2E2B38]/50 border border-[#4A4A5A] rounded-[2rem] p-8 text-center animate-in fade-in">
+          <p className="text-[#A0AEC0] text-sm italic">No active cards found.</p>
+        </div>
+      );
+    }
 
     return (
       <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-        {relevantCards.length === 0 && (
-          <div className="bg-[#2E2B38]/50 border border-[#4A4A5A] rounded-[2rem] p-8 text-center">
-            <p className="text-[#A0AEC0] text-sm italic">No active project workflow.</p>
-          </div>
-        )}
-
-        {relevantCards.map((card, idx) => {
-          const isCompleted = isStageCompleted(currentStage, card.stage);
-          // If completed, maybe dim it or change the button?
-          // For now, let's keep them accessible but style differently if needed.
-          // Actually user wants to see "Completed" status maybe?
+        {recents.map((card, idx) => {
+          // Determine styling based on status
+          const isCompleted = card.status === 'approved' || card.status === 'paid' || card.status === 'verified';
 
           return (
-            <div key={card.id} className="bg-[#1E1B24] border border-[#3A3A4A] p-6 rounded-[2rem] flex flex-col md:flex-row items-start md:items-center justify-between gap-6 group hover:border-[#fafa33]/20 transition-all">
+            <div key={card.id || idx} className="bg-[#1E1B24] border border-[#3A3A4A] p-6 rounded-[2rem] flex flex-col md:flex-row items-start md:items-center justify-between gap-6 group hover:border-[#fafa33]/20 transition-all">
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-[#F5F7FA] font-rubik mb-2">{card.title}</h3>
+                <h3 className="text-lg font-bold text-[#F5F7FA] font-rubik mb-2">{card.subject}</h3>
                 <p className="text-sm text-[#A0AEC0] leading-relaxed max-w-xl">{card.description}</p>
 
-                {/* Stats Grid */}
-                <div className="flex items-center space-x-8 mt-5">
-                  {card.stats.map((stat, sIdx) => (
-                    <div key={sIdx} className="flex flex-col">
-                      <span className="text-[10px] text-[#5A5A6A] font-black uppercase tracking-widest mb-1">{stat.label}</span>
-                      <span className="text-sm font-bold text-[#F5F7FA]">{stat.value}</span>
-                      {sIdx < card.stats.length - 1 && <div className="h-full w-[1px] bg-red-500"></div>}
-                    </div>
-                  ))}
+                {/* Status Badge mobile */}
+                <div className="md:hidden mt-3">
+                  <span className={`text-[10px] font-black uppercase px-3 py-1.5 rounded-lg tracking-wider ${isCompleted ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-[#fafa33]/10 text-[#fafa33] border border-[#fafa33]/20'
+                    }`}>
+                    {card.status}
+                  </span>
                 </div>
               </div>
 
-              <div className="flex flex-col items-end space-y-4 min-w-[140px]">
+              <div className="hidden md:flex flex-col items-end space-y-4 min-w-[140px]">
                 <span className={`text-[10px] font-black uppercase px-3 py-1.5 rounded-lg tracking-wider ${isCompleted ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-[#fafa33]/10 text-[#fafa33] border border-[#fafa33]/20'
                   }`}>
-                  {isCompleted ? 'Completed' : card.statusLabel}
+                  {card.status}
                 </span>
 
                 <button
-                  onClick={card.onAction}
+                  onClick={() => handleRecentsAction(card)}
                   className="flex items-center space-x-2 bg-[#782e87] hover:bg-[#9d3cb0] text-white px-6 py-3 rounded-xl text-xs font-bold transition-all shadow-lg shadow-[#782e87]/20 active:scale-95"
                 >
-                  <span>{isCompleted ? 'View Details' : card.actionLabel}</span>
+                  <span>{card.action || 'View'}</span>
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                   </svg>
@@ -695,58 +584,62 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
     );
   };
 
-  // Demo State for sequential workflow
-  const [demoStage, setDemoStage] = useState<ProjectStage>(ProjectStage.LEAD_COLLECTED);
+  const renderModals = () => {
+    const phone = portalData?.user?.phoneNumber;
 
-  const renderModals = () => (
-    <>
-      <EstimateModal
-        isOpen={isEstimateModalOpen}
-        onClose={() => setEstimateModalOpen(false)}
-        currentStage={demoStage}
-        userRole="client"
-        onApprove={() => {
-          setEstimateModalOpen(false);
-          setDemoStage(ProjectStage.DESIGN_PHASE);
-        }}
-        opportunity={data?.opportunities?.[0] || {
-          id: "OPP-MOCK",
-          phone_number: "9876543210",
-          status: demoStage,
-          date_requested: "2023-10-10",
-          date_prepared: "", date_approved: "", booking_amount: 0, paid_amount: 0, payment_due: 0, estimate_views: "", my_doc_id: ""
-        }}
-        onUpdate={() => {
-          // Transition from Lead Collection -> Estimate Provided
-          setDemoStage(ProjectStage.ESTIMATE_PROVIDED);
-        }}
-      />
-      <DesignModal
-        isOpen={isDesignModalOpen}
-        onClose={() => setDesignModalOpen(false)}
-        onApprove={() => {
-          setDesignModalOpen(false);
-          setDemoStage(ProjectStage.BOOKING_PAYMENT);
-        }}
-        onRequestRevisions={(specs) => {
-          console.log("Revisions:", specs);
-        }}
-      />
-      <PaymentModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setPaymentModalOpen(false)}
-        onPaymentSuccess={() => {
-          setPaymentModalOpen(false);
-          if (demoStage === ProjectStage.BOOKING_PAYMENT) {
-            setDemoStage(ProjectStage.PROJECT_STARTED);
-          } else if (demoStage === ProjectStage.POST_INSTALLATION) {
-            setDemoStage(ProjectStage.COMPLETED);
-            toast.success('Project Completed! Thank you for choosing Hrita.');
-          }
-        }}
-      />
-    </>
-  );
+    return (
+      <>
+        <EstimateModal
+          isOpen={isEstimateModalOpen}
+          onClose={() => setEstimateModalOpen(false)}
+          currentStage={ProjectStage.ESTIMATE_GENERATION} // Pass dynamic if available
+          userRole={userRole as any}
+          onApprove={async () => {
+            if (phone) {
+              await updateStage(phone, 'approved', 'estimate');
+              toast.success('Estimate Approved');
+            }
+            setEstimateModalOpen(false);
+            if (onRefresh) onRefresh();
+          }}
+          opportunity={portalData?.opportunities?.[0] || null} // Pass real opp
+          onUpdate={() => {
+            if (onRefresh) onRefresh();
+          }}
+        />
+        <DesignModal
+          isOpen={isDesignModalOpen}
+          onClose={() => setDesignModalOpen(false)}
+          onApprove={async () => {
+            if (phone) {
+              await updateStage(phone, 'approved', 'design');
+              toast.success('Design Approved');
+            }
+            setDesignModalOpen(false);
+            if (onRefresh) onRefresh();
+          }}
+          onRequestRevisions={async (specs) => {
+            if (phone) {
+              await updateStage(phone, 'changes requested', { type: 'design', revisions: specs });
+              toast.success('Revisions Requested');
+            }
+            // Close handled by modal? Or should close here?
+            setDesignModalOpen(false);
+            if (onRefresh) onRefresh();
+          }}
+        />
+        <PaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setPaymentModalOpen(false)}
+          onPaymentSuccess={() => {
+            setPaymentModalOpen(false);
+            if (onRefresh) onRefresh();
+          }}
+        />
+      </>
+    );
+  };
+
 
   return (
     <>

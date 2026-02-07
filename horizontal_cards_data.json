@@ -1,0 +1,249 @@
+{
+    "Users-Recents": {
+        "Estimate Request Creation": [
+            {
+                "subject": "Create Estimate Request",
+                "description": "Our team will process your estimate and will let you know",
+                "status": "not requested",
+                "action": "Create Estimate"
+            },
+            {
+                "subject": "Create Estimate Request",
+                "description": "Our team will process your estimate and will let you know",
+                "status": "pending",
+                "action":"View Estimate"
+            },
+            {
+                "subject": "Create Estimate Request",
+                "description": "Our team will process your estimate and will let you know",
+                "status": "created",
+                "action":"View Estimate"
+            }
+        ],
+        "Estimate Review": [
+            {
+                "subject": "Estimate Ready for Review",
+                "description": "Our team has prepared your estimate. Please review it and let us know if you have any questions.",
+                "status": "pending",
+                "action": "Review Estimate"
+            },
+            {
+                "subject": "Estimate Ready for Review",
+                "description": "Our team has prepared your estimate. Please review it and let us know if you have any questions.",
+                "status": "changes requested",
+                "action": "Review Estimate"
+            },
+            {
+                "subject": "Estimate Ready for Review",
+                "description": "Our team has prepared your estimate. Please review it and let us know if you have any questions.",
+                "status": "approved",
+                "action": "View Estimate"
+            }
+        ],
+        "Design Phase Review": [
+            {
+                "subject": "Design Ready for Review",
+                "description": "Our team has prepared your design. Please review it and let us know if you have any questions.",
+                "status": "pending",
+                "action": "Review Design"
+            },
+            {
+                "subject": "Design Ready for Review",
+                "description": "Our team has prepared your design. Please review it and let us know if you have any questions.",
+                "status": "changes requested",
+                "action": "Review Design"
+            },
+            {
+                "subject": "Design Ready for Review",
+                "description": "Our team has prepared your design. Please review it and let us know if you have any questions.",
+                "status": "approved",
+                "action": "View Design"
+            }
+        ],
+        "Booking Phase": [
+            {
+                "subject": "Booking Charges",
+                "description": "Please pay the booking charges to proceed",
+                "status": "pending",
+                "action": "Pay"
+            },
+            {
+                "subject": "Booking Charges",
+                "description": "Please pay the booking charges to proceed",
+                "status": "verification pending",
+                "action": "View"
+            },
+            {
+                "subject": "Booking Charges",
+                "description": "Please pay the booking charges to proceed",
+                "status": "paid",
+                "action": "View"
+            }
+        ],
+        "Shipping Phase": [
+            {
+                "subject": "Shipping Charges",
+                "description": "Please pay the shipping charges to proceed",
+                "status": "pending",
+                "action": "Pay"
+            },
+            {
+                "subject": "Shipping Charges",
+                "description": "Please pay the shipping charges to proceed",
+                "status": "verification pending",
+                "action": "View"
+            },
+            {
+                "subject": "Shipping Charges",
+                "description": "Please pay the shipping charges to proceed",
+                "status": "paid",
+                "action": "View"
+            }
+        ],
+        "Installation Phase": [
+            {
+                "subject": "Product Installation",
+                "description": "Product is being installed at your home.",
+                "status": "pending"
+            },
+            {
+                "subject": "Product Installation",
+                "description": "Product is being installed at your home.",
+                "status": "completed"
+            }
+        ],
+        "Payment Phase": [
+            {
+                "subject": "Post Installation Payment",
+                "description": "Please pay the post installation payment to proceed",
+                "status": "pending"
+            },
+            {
+                "subject": "Post Installation Payment",
+                "description": "Please pay the post installation payment to proceed",
+                "status": "verification pending"
+            },
+            {
+                "subject": "Post Installation Payment",
+                "description": "Please pay the post installation payment to proceed",
+                "status": "paid"
+            }
+        ]
+    },
+    "HritaUsers-Recents": {
+        "Review Estimate Request": [
+            {
+                "subject": "Review lead's estimate request",
+                "description": "Lead has sent us an estimate request. Review it and create an estimate",
+                "status": "pending",
+                "action": "Upload"
+            },
+            {
+                "subject": "Review lead's estimate request",
+                "description": "Lead has sent us an estimate request. Review it and create an estimate",
+                "status": "changes requested",
+                "action": "Upload"
+            },
+            {
+                "subject": "Review lead's estimate request",
+                "description": "Lead has sent us an estimate request. Review it and create an estimate",
+                "status": "approved",
+                "action": "View"
+            }
+        ],
+        "Provide Detailed Design": [
+            {
+                "subject": "Provide Detailed Design",
+                "description": "Lead has approved the estimate. Provide detailed design",
+                "status": "pending",
+                "action": "Upload"
+            },
+            {
+                "subject": "Provide Detailed Design",
+                "description": "Lead has approved the estimate. Provide detailed design",
+                "status": "changes requested",
+                "action": "View"
+            },
+            {
+                "subject": "Provide Detailed Design",
+                "description": "Lead has approved the estimate. Provide detailed design",
+                "status": "approved",
+                "action": "View"
+            }
+        ],
+        "Request Booking Charges": [
+            {
+                "subject": "Request Booking Charges",
+                "description": "Lead has approved the design. Request booking charges",
+                "status": "pending",
+                "action": "Pay"
+            },
+            {
+                "subject": "Request Booking Charges",
+                "description": "Lead has approved the design. Request booking charges",
+                "status": "verification pending",
+                "action": "View"
+            },
+            {
+                "subject": "Request Booking Charges",
+                "description": "Lead has approved the design. Request booking charges",
+                "status": "verified",
+                "action": "View"
+            }
+        ],
+        "Request Shipping Charges": [
+            {
+                "subject": "Request Shipping Charges",
+                "description": "Lead has paid the booking charges. Request shipping charges",
+                "status": "pending",
+                "action": "Pay"
+            },
+            {
+                "subject": "Request Shipping Charges",
+                "description": "Lead has paid the booking charges. Request shipping charges",
+                "status": "verification pending",
+                "action": "View"
+            },
+            {
+                "subject": "Request Shipping Charges",
+                "description": "Lead has paid the booking charges. Request shipping charges",
+                "status": "verified",
+                "action": "View"
+            }
+        ],
+        "Installation Phase": [
+            {
+                "subject": "Product Installation",
+                "description": "Product is being installed at your home.",
+                "status": "pending",
+                "action": "View"
+            },
+            {
+                "subject": "Product Installation",
+                "description": "Product is being installed at your home.",
+                "status": "completed",
+                "action": "View"
+            }
+        ],
+        "Request Post Installation Payment": [
+            {
+                "subject": "Request Post Installation Payment",
+                "description": "Installation is completed. Request post installation payment",
+                "status": "pending",
+                "action": "Pay"
+            },
+            {
+                "subject": "Request Post Installation Payment",
+                "description": "Installation is completed. Request post installation payment",
+                "status": "verification pending",
+                "action": "View"
+            },
+            {
+                "subject": "Request Post Installation Payment",
+                "description": "Installation is completed. Request post installation payment",
+                "status": "paid",
+                "action": "View"
+            }
+        ]
+    }
+}
