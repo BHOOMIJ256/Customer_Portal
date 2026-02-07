@@ -1,69 +1,16 @@
-
 const SCRIPT_URL = import.meta.env.VITE_GOOGLE_SCRIPT_URL;
 
-export async function updateStage(phone: string, status: string, additionalData: any = {}) {
-  try {
-    const body = {
-        action: 'updateStatus',
-        phone_number: phone,
-        status: status,
-        ...additionalData // Pass additional data
-    };
-
-    await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
-    return { success: true };
-  } catch (error) {
-    throw error;
-  }
+async function apiCall(body: any) {
+  const actionUrl = `${SCRIPT_URL}?action=${body.action}`;
+  const response = await fetch(actionUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(body),
+  });
+  return await response.json();
 }
 
-export async function addLead(name: string, phone: string) {
-  try {
-    await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'ADD_LEAD', // Use legacy action or update backend to handle it
-        name: name,
-        phone_number: phone
-      }),
-    });
-    return { success: true };
-  } catch (error) {
-    throw error;
-  }
-}
-
-export async function submitEstimateDetails(details: any) {
-  try {
-    await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'createEstimateRequest',
-        ...details
-      }),
-    });
-    return { success: true };
-  } catch (error) {
-    throw error;
-  }
-}
-
-export async function adminUploadEstimate(phone: string, docData: { subject: string, url: string, description: string }) {
-  try {
-    await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'uploadEstimate',
-        phone_number: phone,
-        document_id: docData.url, 
-        ...docData
-      }),
-    });
-    return { success: true };
-  } catch (error) {
-    throw error;
-  }
-}
+export const addLead = (name: string, phone: string) => apiCall({ action: 'addLead', name, phone_number: phone });
+export const submitEstimateDetails = (details: any) => apiCall({ action: 'createEstimateRequest', ...details });
+export const updateEstimateStatus = (phone: string, status: string) => apiCall({ action: 'updateEstimateStatus', phone_number: phone, status });
+export const uploadEstimate = (phone: string, docId: string) => apiCall({ action: 'uploadEstimate', phone_number: phone, document_id: docId });

@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
 import Logo from '../components/Logo';
+import toast from 'react-hot-toast';
 
 interface LoginProps {
   onLogin: (phone: string) => void;
@@ -8,11 +8,27 @@ interface LoginProps {
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [phone, setPhone] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (phone.length >= 9) {
-      onLogin(phone);
+
+    // Basic validation
+    const cleanPhone = phone.replace(/\D/g, ''); // Remove non-numeric characters
+    if (cleanPhone.length < 10) {
+      toast.error('Please enter a valid 10-digit mobile number');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // We pass the phone up to App.tsx which will handle the usePortalData fetch
+      // If the fetch fails there, the dashboard won't load and an error will show
+      await onLogin(cleanPhone);
+    } catch (err) {
+      toast.error('Login failed. Please check your connection.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -29,14 +45,17 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
         <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="phone" className="block text-xs font-bold text-[#A0AEC0] uppercase tracking-widest mb-2 ml-1">Phone Number</label>
+            <label htmlFor="phone" className="block text-xs font-bold text-[#A0AEC0] uppercase tracking-widest mb-2 ml-1">
+              Phone Number
+            </label>
             <input
               id="phone"
               name="phone"
               type="tel"
               required
-              className="relative block w-full rounded-2xl border-0 py-4 px-5 text-[#F5F7FA] ring-1 ring-inset ring-[#4A4A5A] placeholder:text-slate-500 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-[#fafa33] sm:text-sm bg-[#24212b] transition-all"
-              placeholder="+91 00000 00000"
+              disabled={isLoading}
+              className="relative block w-full rounded-2xl border-0 py-4 px-5 text-[#F5F7FA] ring-1 ring-inset ring-[#4A4A5A] placeholder:text-slate-500 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-[#fafa33] sm:text-sm bg-[#24212b] transition-all disabled:opacity-50"
+              placeholder="9999999999"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
             />
@@ -44,9 +63,17 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
           <button
             type="submit"
-            className="group relative flex w-full justify-center rounded-2xl bg-[#782e87] py-4 px-4 text-sm font-bold text-white hover:bg-[#8e3ba0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#782e87] transition-all shadow-lg active:scale-[0.98]"
+            disabled={isLoading}
+            className="group relative flex w-full justify-center rounded-2xl bg-[#782e87] py-4 px-4 text-sm font-bold text-white hover:bg-[#8e3ba0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#782e87] transition-all shadow-lg active:scale-[0.98] disabled:opacity-50"
           >
-            Access Dashboard
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Verifying...
+              </div>
+            ) : (
+              'Access Dashboard'
+            )}
           </button>
         </form>
 

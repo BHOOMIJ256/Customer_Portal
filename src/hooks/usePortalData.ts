@@ -1,75 +1,33 @@
-import { useState, useEffect } from 'react';
-import { PortalData } from '../types';
+import { useState, useEffect, useCallback } from 'react';
+import toast from 'react-hot-toast';
 
-export function usePortalData(phone: string | null, viewAsRole?: string) {
-  const [data, setData] = useState<PortalData | null>(null);
+const SCRIPT_URL = import.meta.env.VITE_GOOGLE_SCRIPT_URL;
+
+export function usePortalData(phoneNumber: string | null) {
+  const [portalData, setPortalData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
 
-  const fetchData = async (phoneNumber: string, role?: string) => {
+  const fetchData = useCallback(async () => {
+    if (!phoneNumber) return;
     setLoading(true);
-    setError(null);
     try {
-      const scriptUrl = import.meta.env.VITE_GOOGLE_SCRIPT_URL;
-      if (!scriptUrl) {
-        throw new Error('Google Script URL not configured in .env');
+      const response = await fetch(`${SCRIPT_URL}?action=getData&phone_number=${phoneNumber}`);
+      const result = await response.json();
+      if (result.status === 'success') {
+        setPortalData(result.data);
+      } else {
+        toast.error(result.message || "Error loading data");
       }
-
-      // Add action=getData
-      let url = `${scriptUrl}?action=getData&phone=${phoneNumber}&t=${Date.now()}`;
-      if (role) url += `&viewAsRole=${role}`;
-
-      const response = await fetch(url);
-      const responseText = await response.text();
-
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
-      }
-
-      let rawDb;
-      try {
-        rawDb = JSON.parse(responseText);
-      } catch (e) {
-        console.error("JSON Parse Error:", responseText);
-        throw new Error("Invalid JSON response from Hrita Cloud.");
-      }
-      
-      if (rawDb.status === 'error') {
-          throw new Error(rawDb.message);
-      }
-
-      // Transform raw sheet data into PortalData structure
-      const transformedData: PortalData = {
-        user: {
-          name: rawDb.user.name,
-          phoneNumber: rawDb.user.phone_number,
-          role: rawDb.user.role
-        },
-        opportunities: rawDb.opportunities || [],
-        invoices: rawDb.invoices || [],
-        payments: rawDb.payments || [],
-        documents: rawDb.documents || [],
-        myDocuments: rawDb.myDocuments || [],
-        consultations: rawDb.consultations || [],
-        allClients: rawDb.allClients || [],
-        recents: rawDb.recents || []
-      };
-
-      setData(transformedData);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
+      console.error("Fetch Error:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [phoneNumber]);
 
   useEffect(() => {
-    if (phone) {
-      fetchData(phone, viewAsRole);
-    } else {
-      setData(null);
-    }
-  }, [phone, viewAsRole]);
+    fetchData();
+  }, [fetchData]);
 
-  return { data, loading, error, refetch: () => phone && fetchData(phone, viewAsRole) };
+  return { portalData, loading, refetch: fetchData };
 }
