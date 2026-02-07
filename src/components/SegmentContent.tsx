@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { SegmentType, ConsultationSession, ProjectStage } from '../types';
 import consultationsData from '../data/consultations.json';
+import toast from 'react-hot-toast';
 import EstimateModal from './modals/EstimateModal';
 import DesignModal from './modals/DesignModal';
 import PaymentModal from './modals/PaymentModal';
@@ -569,6 +570,56 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
           { label: 'Method', value: 'Secure' }
         ],
         onAction: () => setPaymentModalOpen(true)
+      },
+      {
+        id: 'step-5',
+        stage: ProjectStage.PROJECT_STARTED,
+        title: 'Shipping / Production',
+        description: 'Your custom furniture is now in production and will be shipped soon.',
+        statusLabel: 'In Progress',
+        actionLabel: 'View Status',
+        isAction: true,
+        stats: [
+          { label: 'Factory', value: 'Active' },
+          { label: 'Quality', value: 'Checked' }
+        ],
+        onAction: () => {
+          // Dummy progression
+          setDemoStage(ProjectStage.INSTALLATION);
+          toast.success('Production completed! Moving to Installation.');
+        }
+      },
+      {
+        id: 'step-6',
+        stage: ProjectStage.INSTALLATION,
+        title: 'Installation',
+        description: 'Assembly and installation of modular units at your site.',
+        statusLabel: 'In Progress',
+        actionLabel: 'View Details',
+        isAction: true,
+        stats: [
+          { label: 'Team', value: 'On-site' },
+          { label: 'Progress', value: '75%' }
+        ],
+        onAction: () => {
+          // Dummy progression
+          setDemoStage(ProjectStage.POST_INSTALLATION);
+          toast.success('Installation completed! Final payment pending.');
+        }
+      },
+      {
+        id: 'step-7',
+        stage: ProjectStage.POST_INSTALLATION,
+        title: 'Post-Installation Payment',
+        description: 'Final project settlement after successful installation.',
+        statusLabel: 'Action Required',
+        actionLabel: 'Make Payment',
+        isAction: true,
+        stats: [
+          { label: 'Amount', value: '₹75,000' },
+          { label: 'Balance', value: 'Last' }
+        ],
+        onAction: () => setPaymentModalOpen(true)
       }
     ];
 
@@ -686,7 +737,12 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
         onClose={() => setPaymentModalOpen(false)}
         onPaymentSuccess={() => {
           setPaymentModalOpen(false);
-          setDemoStage(ProjectStage.PROJECT_STARTED);
+          if (demoStage === ProjectStage.BOOKING_PAYMENT) {
+            setDemoStage(ProjectStage.PROJECT_STARTED);
+          } else if (demoStage === ProjectStage.POST_INSTALLATION) {
+            setDemoStage(ProjectStage.COMPLETED);
+            toast.success('Project Completed! Thank you for choosing Hrita.');
+          }
         }}
       />
     </>
