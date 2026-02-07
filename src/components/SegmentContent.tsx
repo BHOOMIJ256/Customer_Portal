@@ -1,11 +1,12 @@
 
 import React, { useState } from 'react';
-import { SegmentType, ConsultationSession, ProjectStage } from '../types';
+import { SegmentType, ConsultationSession, ProjectStage, Invoice } from '../types';
 import consultationsData from '../data/consultations.json';
 import toast from 'react-hot-toast';
 import EstimateModal from './modals/EstimateModal';
 import DesignModal from './modals/DesignModal';
 import PaymentModal from './modals/PaymentModal';
+import InvoiceModal from './modals/InvoiceModal';
 
 interface SegmentContentProps {
   type: SegmentType;
@@ -153,6 +154,13 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
   const [isEstimateModalOpen, setEstimateModalOpen] = useState(false);
   const [isDesignModalOpen, setDesignModalOpen] = useState(false);
   const [isPaymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [isInvoiceModalOpen, setInvoiceModalOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+
+  const handleOpenInvoiceDetails = (invoice: Invoice) => {
+    setSelectedInvoice(invoice);
+    setInvoiceModalOpen(true);
+  };
 
 
   // Separate upcoming and past
@@ -440,39 +448,67 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
     </div>
   );
 
-  const renderInvoices = () => (
-    <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
-      {data?.invoices && data.invoices.length > 0 ? data.invoices.map((inv, idx) => (
-        <div key={idx} className="bg-[#2E2B38] border border-[#4A4A5A] p-6 rounded-[2rem] flex flex-col sm:flex-row sm:items-center justify-between group hover:bg-[#2E2B38]/60 transition-all">
-          <div className="flex items-center mb-4 sm:mb-0">
-            <div className="w-10 h-10 rounded-xl bg-[#782e87]/20 text-[#782e87] flex items-center justify-center mr-4">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <div>
-              <h4 className="text-sm font-bold text-[#F5F7FA]">{inv.id}</h4>
-              <p className="text-[11px] text-[#A0AEC0] font-medium">{inv.description}</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between sm:justify-end sm:space-x-12">
-            <div className="text-right">
-              <p className="text-[10px] font-black text-[#A0AEC0] uppercase tracking-widest">Date</p>
-              <p className="text-sm font-bold text-[#F5F7FA]">{inv.date}</p>
-            </div>
-            <div className="text-right min-w-[100px]">
-              <p className="text-[10px] font-black text-[#A0AEC0] uppercase tracking-widest">Total</p>
-              <p className="text-sm font-bold text-[#fafa33]">₹{inv.amount.toLocaleString()}</p>
-            </div>
-          </div>
+  const renderInvoices = () => {
+    const DUMMY_INVOICES: Invoice[] = [
+      {
+        phone_number: "9876543210",
+        id: "INV-2024-001",
+        description: "Booking Advance",
+        date: "2024-01-15",
+        amount: 150000
+      },
+      {
+        phone_number: "9876543210",
+        id: "INV-2024-005",
+        description: "Design Phase Invoice",
+        date: "2024-02-01",
+        amount: 75000
+      },
+      {
+        phone_number: "9876543210",
+        id: "INV-2024-012",
+        description: "Final Project Settlement",
+        date: "2024-02-15",
+        amount: 225000
+      }
+    ];
+
+    return (
+      <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="bg-[#2E2B38] border border-[#4A4A5A] rounded-[2rem] overflow-hidden">
+          <table className="w-full text-left text-sm">
+            <thead className="text-[10px] font-black text-[#A0AEC0] uppercase tracking-widest bg-[#24212b]/50 border-b border-[#4A4A5A]">
+              <tr>
+                <th className="px-6 py-4">Invoice ID</th>
+                <th className="px-6 py-4">Description</th>
+                <th className="px-6 py-4">Date</th>
+                <th className="px-6 py-4">Amount</th>
+                <th className="px-6 py-4 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#4A4A5A]">
+              {DUMMY_INVOICES.map((inv, idx) => (
+                <tr key={idx} className="hover:bg-[#24212b]/30 transition-colors group text-[#F5F7FA]">
+                  <td className="px-6 py-5 font-bold text-[#fafa33]/90 text-[11px] font-rubik tracking-wider uppercase">{inv.id}</td>
+                  <td className="px-6 py-5 font-bold">{inv.description}</td>
+                  <td className="px-6 py-5 text-[#A0AEC0]">{inv.date}</td>
+                  <td className="px-6 py-5 font-bold text-[#F5F7FA]">₹{inv.amount.toLocaleString()}</td>
+                  <td className="px-6 py-5 text-right">
+                    <button
+                      onClick={() => handleOpenInvoiceDetails(inv)}
+                      className="bg-[#24212b] text-[#A0AEC0] border border-[#4A4A5A] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:text-white hover:border-[#fafa33] transition-all"
+                    >
+                      View Details
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      )) : (
-        <div className="bg-[#2E2B38]/50 border border-[#4A4A5A] rounded-[2rem] p-8 text-center">
-          <p className="text-[#A0AEC0] text-sm italic">No invoices issued yet.</p>
-        </div>
-      )}
-    </div>
-  );
+      </div>
+    );
+  };
 
   const renderTickets = () => (
     <div className="bg-[#2E2B38] border border-[#4A4A5A] p-8 rounded-[2rem] text-center animate-in fade-in duration-500">
@@ -756,6 +792,11 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
             toast.success('Project Completed! Thank you for choosing Hrita.');
           }
         }}
+      />
+      <InvoiceModal
+        isOpen={isInvoiceModalOpen}
+        onClose={() => setInvoiceModalOpen(false)}
+        invoice={selectedInvoice}
       />
     </>
   );
