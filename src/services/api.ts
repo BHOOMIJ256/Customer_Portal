@@ -1,4 +1,3 @@
-
 const SCRIPT_URL = import.meta.env.VITE_GOOGLE_SCRIPT_URL;
 
 export async function updateStage(phone: string, stage: string, additionalData: any = {}) {
@@ -6,7 +5,7 @@ export async function updateStage(phone: string, stage: string, additionalData: 
     const response = await fetch(SCRIPT_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'text/plain;charset=utf-8',
       },
       body: JSON.stringify({
         action: 'UPDATE_STAGE',
@@ -15,8 +14,10 @@ export async function updateStage(phone: string, stage: string, additionalData: 
         ...additionalData
       }),
     });
-    // Note: with 'no-cors', we can't read the response body.
-    // In a real app, you'd use a proxy or CORS-enabled backend.
+    
+    // Bypass WhatsApp (Simulated success)
+    console.log(`[BYPASS] WhatsApp notification skipped for stage: ${stage}`);
+    
     return { success: true };
   } catch (error) {
     throw error;
@@ -25,10 +26,10 @@ export async function updateStage(phone: string, stage: string, additionalData: 
 
 export async function submitConsultation(phone: string, subject: string, description: string) {
   try {
-    const response = await fetch(SCRIPT_URL, {
+    await fetch(SCRIPT_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'text/plain;charset=utf-8',
       },
       body: JSON.stringify({
         action: 'SUBMIT_CONSULTATION',
@@ -47,10 +48,10 @@ export async function submitConsultation(phone: string, subject: string, descrip
 
 export async function addLead(name: string, phone: string) {
   try {
-    const response = await fetch(SCRIPT_URL, {
+    await fetch(SCRIPT_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'text/plain;charset=utf-8',
       },
       body: JSON.stringify({
         action: 'ADD_LEAD',
@@ -64,15 +65,16 @@ export async function addLead(name: string, phone: string) {
   }
 }
 
-export async function submitEstimateDetails(details: any) {
+export async function submitEstimateDetails(phone: string, details: any) {
   try {
-    const response = await fetch(SCRIPT_URL, {
+    await fetch(SCRIPT_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'text/plain;charset=utf-8',
       },
       body: JSON.stringify({
         action: 'SUBMIT_ESTIMATE',
+        phone: phone,
         ...details
       }),
     });
@@ -82,21 +84,29 @@ export async function submitEstimateDetails(details: any) {
   }
 }
 
-export async function adminUploadEstimate(phone: string, docData: { subject: string, url: string, description: string }) {
+export async function adminUploadEstimate(phone: string, url: string, subject: string, description: string) {
   try {
     await fetch(SCRIPT_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'text/plain;charset=utf-8',
       },
       body: JSON.stringify({
         action: 'UPLOAD_ESTIMATE',
         phone: phone,
-        ...docData
+        url: url,
+        subject: subject,
+        description: description
       }),
     });
     return { success: true };
   } catch (error) {
     throw error;
   }
+}
+
+export async function processPayment(phone: string, amount: number, description: string) {
+  // Bypass Payment Gateway
+  console.log(`[BYPASS] Payment Gateway skipped for amount: ${amount}`);
+  return { success: true, transactionId: `MOCK_TXN_${Date.now()}` };
 }

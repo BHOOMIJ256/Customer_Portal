@@ -9,6 +9,7 @@ export default defineConfig({
       '/api/google': {
         target: 'https://script.google.com',
         changeOrigin: true,
+        secure: false,
         rewrite: (path) => path.replace(/^\/api\/google/, ''),
         followRedirects: true,
       }

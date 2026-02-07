@@ -1,3 +1,4 @@
+import { EstimateRecord } from './workflow';
 
 export enum ProjectStage {
   LEAD_COLLECTED = 'Lead Collected',
@@ -94,7 +95,7 @@ export interface EstimateSubmission {
   city: string;
   property_type: string;
   bhk: string;
-  square_feat: string;
+  square_feet: string;
   layout_url: string;
   wiring_done: string;
   possession_status: string;
@@ -107,6 +108,7 @@ export interface PortalData {
   invoices: Invoice[];
   payments: Payment[];
   documents: OtherDocument[];
+  estimates: EstimateRecord[];
   myDocuments?: any[];
   consultations: ConsultationSession[];
   allClients?: User[]; // For admin view

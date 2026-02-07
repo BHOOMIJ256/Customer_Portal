@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { PortalData } from '../types';
+import { EstimatePhase } from '../types/workflow';
+import { db } from '../services/databaseService';
 
 export function usePortalData(phone: string | null) {
   const [data, setData] = useState<PortalData | null>(null);
@@ -11,6 +13,7 @@ export function usePortalData(phone: string | null) {
     setError(null);
     try {
       const scriptUrl = import.meta.env.VITE_GOOGLE_SCRIPT_URL;
+      console.log("DEBUG: Fetching from scriptUrl:", scriptUrl);
       if (!scriptUrl) {
         throw new Error('Google Script URL not configured in .env');
       }
@@ -30,10 +33,15 @@ export function usePortalData(phone: string | null) {
 
       let rawDb;
       try {
-        rawDb = JSON.parse(responseText);
+        const json = JSON.parse(responseText);
+        rawDb = json.success ? json.data : json; // Handle wrapped vs unwrapped
       } catch (e) {
+        console.error("DEBUG: Failed to parse JSON. Response was:", responseText);
         throw new Error("Invalid JSON response from Hrita Cloud. See console for details.");
       }
+
+      // Update the singleton DB cache for services that rely on it (like workflowService)
+      db.setCloudData(rawDb);
 
       // Transform raw sheet data into PortalData structure
       const transformedData: PortalData = {
@@ -47,22 +55,60 @@ export function usePortalData(phone: string | null) {
         payments: rawDb.Payments || [],
         documents: rawDb.OtherDocuments || [],
         myDocuments: rawDb.MyDocuments || [],
-        consultations: rawDb.ConsultationSession || []
+        consultations: rawDb.ConsultationSessions || rawDb.ConsultationSession || [],
+        estimates: (rawDb.Estimates || []).map((e: any) => ({
+          ...e,
+          // DERIVE FRONTEND STATE FROM BACKEND STATUS
+          current_phase: derivePhase(e.status),
+          phase_status: derivePhaseStatus(e.status)
+        }))
       };
 
-      // Helper to safely compare phone numbers (handles numbers/strings)
+      // Helper to map backend status to frontend phase
+      function derivePhase(backendStatus: string): EstimatePhase {
+        // Normalize
+        const status = (backendStatus || '').toUpperCase();
+        
+        if (status === 'REQUESTED' || status === 'PROCESSING') return EstimatePhase.ESTIMATE_REQUEST;
+        if (status === 'PREPARED' || status === 'ESTIMATE_REVIEW') return EstimatePhase.ESTIMATE_REVIEW; // PREPARED = Uploaded
+        if (status === 'DESIGN_SUBMITTED' || status === 'DESIGN_REVIEW') return EstimatePhase.DESIGN;
+        if (status === 'BOOKING_REQUESTED') return EstimatePhase.BOOKING;
+        if (status === 'SHIPPING_REQUESTED') return EstimatePhase.SHIPPING;
+        if (status === 'INSTALLATION') return EstimatePhase.INSTALLATION;
+        if (status === 'PAYMENT_REQUESTED') return EstimatePhase.POST_INSTALLATION_PAYMENT;
+        if (status === 'COMPLETED') return EstimatePhase.COMPLETED;
+        
+        return EstimatePhase.ESTIMATE_REQUEST; // Default
+      }
+
+      function derivePhaseStatus(backendStatus: string): string {
+        const status = (backendStatus || '').toUpperCase();
+        
+        if (status === 'REQUESTED') return 'created'; // User just created it
+        if (status === 'PROCESSING') return 'pending'; // Admin is processing
+        if (status === 'PREPARED') return 'pending'; // Admin uploaded, waiting for user review
+        if (status === 'ESTIMATE_APPROVED') return 'approved';
+        
+        // Generic mapping
+        if (status.includes('APPROVED')) return 'approved';
+        if (status.includes('PAID')) return 'paid';
+        if (status.includes('COMPLETED')) return 'completed';
+        
+        return 'pending';
+      }
+
+      // Helper to safely compare phone numbers
       const isMatch = (dbPhone: any, queryPhone: string) => {
         if (!dbPhone) return false;
         return String(dbPhone).trim() === queryPhone.trim();
       };
 
-      // Determine user details and role
-      const hritaUser = (rawDb.HritaUsers || []).find((u: any) => isMatch(u.phone_number, phoneNumber));
-      const normalUser = (rawDb.Users || []).find((u: any) => isMatch(u.phone_number, phoneNumber));
-
-      if (hritaUser) {
+      // Determine user details and role from backend response
+      if (rawDb.isHritaUser) {
+        // Admin profile
+        const hritaProfile = (rawDb.HritaUsers || []).find((u: any) => isMatch(u.phone_number, phoneNumber));
         transformedData.user = {
-          name: hritaUser.name || "Hrita Admin",
+          name: hritaProfile?.name || "Hrita Admin",
           phoneNumber: phoneNumber,
           role: 'admin'
         };
@@ -71,17 +117,20 @@ export function usePortalData(phone: string | null) {
           name: u.name || "Unnamed Client",
           phoneNumber: String(u.phone_number),
           role: 'client',
-          currentStage: u.current_stage || u.status || 'Lead Collected',
-          lastUpdate: u.last_update || 'Recently'
+          currentStage: u.status || 'Lead Collected',
+          lastUpdate: u.updated_datetime || 'Recently'
         }));
-      } else if (normalUser) {
-        transformedData.user = {
-          name: normalUser.name || "Premium Client",
-          phoneNumber: phoneNumber,
-          role: 'client',
-          currentStage: normalUser.current_stage || normalUser.status || 'Lead Collected',
-          lastUpdate: normalUser.last_update || 'Recently'
-        };
+      } else {
+        // Normal User profile
+        if (rawDb.user) {
+          transformedData.user = {
+            name: rawDb.user.name || "Premium Client",
+            phoneNumber: phoneNumber,
+            role: 'client',
+            currentStage: rawDb.user.status || 'Lead Collected',
+            lastUpdate: rawDb.user.updated_datetime || 'Recently'
+          };
+        }
       }
 
       setData(transformedData);

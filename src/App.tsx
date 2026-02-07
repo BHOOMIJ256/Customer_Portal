@@ -18,7 +18,7 @@ const App: React.FC = () => {
   }, []);
 
   const handleLogin = (phoneNumber: string) => {
-    const isAdmin = phoneNumber === '000000000' || phoneNumber === '0000000000';
+    const isAdmin = phoneNumber === '1234567890';
 
     const user: User = {
       name: isAdmin ? "Hrita Admin" : "Loading...",

@@ -1,13 +1,20 @@
 
-import React, { useState } from 'react';
-import { SegmentType, ConsultationSession, ProjectStage } from '../types';
+import React, { useState, useEffect } from 'react';
+import { SegmentType, ProjectStage, Opportunity, Payment, Invoice, ConsultationSession } from '../types';
+import { EstimatePhase } from '../types/workflow';
+import { workflowService } from '../services/workflowService';
+import { db } from '../services/databaseService';
+import HorizontalCard from './HorizontalCard';
 import consultationsData from '../data/consultations.json';
 import EstimateModal from './modals/EstimateModal';
 import DesignModal from './modals/DesignModal';
 import PaymentModal from './modals/PaymentModal';
+import toast from 'react-hot-toast';
 
 interface SegmentContentProps {
   type: SegmentType;
+  onRefresh?: () => void;
+  targetUserPhone?: string;
 }
 
 // ... (ConsultationModal interface and component remain unchanged)
@@ -142,7 +149,7 @@ const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose, 
   );
 };
 
-const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
+const SegmentContent: React.FC<SegmentContentProps> = ({ type, onRefresh, targetUserPhone }) => {
   const data = (consultationsData as any);
   const [sessions, setSessions] = useState<ConsultationSession[]>(consultationsData as unknown as ConsultationSession[]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -152,6 +159,14 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
   const [isEstimateModalOpen, setEstimateModalOpen] = useState(false);
   const [isDesignModalOpen, setDesignModalOpen] = useState(false);
   const [isPaymentModalOpen, setPaymentModalOpen] = useState(false);
+
+  // User State
+  const savedUser = localStorage.getItem('hrita_user');
+  const currentUser = savedUser ? JSON.parse(savedUser) : null;
+  const userRole = currentUser ? ((currentUser.phoneNumber === '1234567890' || currentUser.role === 'admin') ? 'admin' : 'client') : 'client';
+
+  // Determine whose data to show
+  const targetPhone = targetUserPhone || currentUser?.phoneNumber;
 
 
   // Separate upcoming and past
@@ -438,156 +453,134 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
   );
 
   /* -------------------------------------------------------------------------
-   * RECENTS TAB IMPLEMENTATION
+   * RECENTS TAB IMPLEMENTATION - Workflow Driven
    * ----------------------------------------------------------------------- */
 
-  // Helper to check if a stage is active or completed (unlocked)
-  const isStageUnlocked = (currentStage: string, targetStage: string) => {
-    const stages = Object.values(ProjectStage);
-    const currentIndex = stages.indexOf(currentStage as ProjectStage);
-    const targetIndex = stages.indexOf(targetStage as ProjectStage);
-    return currentIndex >= targetIndex;
-  };
+  const renderRecents = () => {
+    // Get current user from localStorage
+    if (!currentUser) {
+      return (
+        <div className="bg-[#2E2B38]/50 border border-[#4A4A5A] rounded-[2rem] p-8 text-center">
+          <p className="text-[#A0AEC0] text-sm italic">Please log in to view your estimates.</p>
+        </div>
+      );
+    }
 
-  const isStageCompleted = (currentStage: string, targetStage: string) => {
-    const stages = Object.values(ProjectStage);
-    const currentIndex = stages.indexOf(currentStage as ProjectStage);
-    const targetIndex = stages.indexOf(targetStage as ProjectStage);
-    return currentIndex > targetIndex;
-  };
+    // Get estimates for the target user (or current user if not targeted)
+    const estimates = workflowService.getEstimatesForUser(targetPhone);
 
-  const renderRecents = (stage: ProjectStage) => {
-    // Use the demo stage passed in
-    const currentStage = stage;
-
-    const cards = [
-      {
-        id: 'step-1',
-        stage: ProjectStage.LEAD_COLLECTED,
-        title: 'Project Initiation',
-        description: 'Provide your requirements to get a personalized estimate.',
-        statusLabel: 'Action Required',
-        actionLabel: 'Fill Details',
-        isAction: true,
-        stats: [
-          { label: 'Step', value: '1/4' },
-          { label: 'Est. Time', value: '5 Mins' }
-        ],
-        onAction: () => {
-          setEditingSession(undefined); // Reset
-          setEstimateModalOpen(true);
-        }
-      },
-      {
-        id: 'step-2',
-        stage: ProjectStage.ESTIMATE_PROVIDED,
-        title: 'Residential Interior Design - 3BHK',
-        description: 'Complete interior design for luxury apartment in Bandra West.',
-        statusLabel: 'Estimate Ready',
-        actionLabel: 'View Details',
-        isAction: true,
-        stats: [
-          { label: 'Amount', value: '₹4,50,000' },
-          { label: 'Due', value: '₹0' },
-          { label: 'Viewers', value: '2' }
-        ],
-        onAction: () => setEstimateModalOpen(true)
-      },
-      {
-        id: 'step-3',
-        stage: ProjectStage.DESIGN_PHASE,
-        title: 'Design Phase Review',
-        description: 'Review the proposed design concepts and layouts.',
-        statusLabel: 'Design Ready',
-        actionLabel: 'Review Design',
-        isAction: true,
-        stats: [
-          { label: 'Concepts', value: '3' },
-          { label: 'Revisions', value: '0' }
-        ],
-        onAction: () => setDesignModalOpen(true)
-      },
-      {
-        id: 'step-4',
-        stage: ProjectStage.BOOKING_PAYMENT,
-        title: 'Project Booking',
-        description: 'Secure your implementation slot with the booking advance.',
-        statusLabel: 'Payment Due',
-        actionLabel: 'Make Payment',
-        isAction: true,
-        stats: [
-          { label: 'Amount', value: '₹1,50,000' },
-          { label: 'Method', value: 'Secure' }
-        ],
-        onAction: () => setPaymentModalOpen(true)
-      }
-    ];
-
-    // Filter cards based on sequential logic
-    // We show all cards UP TO the current stage + 1 (the next actionable one)? 
-    // Or just the ones that are unlocked?
-    // User said: "Each bar should appear one after the other, only after the action proceeds with confirm."
-    // This implies we filter the list.
-
-    const relevantCards = cards.filter(card => {
-      // Show if we have passed or are at this stage
-      // Special sub-logic: 
-      // If current is LEAD_COLLECTED -> Show Step 1
-      // If current is ESTIMATE_PROVIDED -> Show Step 1 (Completed) & Step 2
-      // etc.
-      return isStageUnlocked(currentStage, card.stage) ||
-        (card.stage === ProjectStage.ESTIMATE_PROVIDED && currentStage === ProjectStage.ESTIMATE_GENERATION); // Edge case
-    }).reverse(); // Show newest/current stage at top (descending order)
-
-
-    return (
-      <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-        {relevantCards.length === 0 && (
-          <div className="bg-[#2E2B38]/50 border border-[#4A4A5A] rounded-[2rem] p-8 text-center">
-            <p className="text-[#A0AEC0] text-sm italic">No active project workflow.</p>
+    if (estimates.length === 0) {
+      return (
+        <div className="space-y-4">
+          <div className="bg-[#2E2B38]/50 border border-[#4A4A5A] border-dashed rounded-[2rem] p-10 text-center">
+            <div className="w-16 h-16 bg-[#24212b] rounded-2xl flex items-center justify-center mx-auto mb-4 text-[#A0AEC0]">
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-[#F5F7FA] mb-2">No Estimates Yet</h3>
+            <p className="text-sm text-[#A0AEC0] mb-6">Start your journey by creating your first estimate request.</p>
+            {userRole === 'client' ? (
+              <button
+                onClick={() => {
+                  (window as any)._activeEstimate = null;
+                  (window as any)._activeOpportunity = null;
+                  setEstimateModalOpen(true);
+                }}
+                className="bg-[#fafa33] text-[#24212b] px-8 py-3 rounded-xl text-xs font-black hover:bg-[#ffff4d] transition-all active:scale-95 shadow-lg shadow-[#fafa33]/10"
+              >
+                Create Estimate Request
+              </button>
+            ) : (
+              <p className="text-[#A0AEC0] text-xs mt-4">Waiting for client requests...</p>
+            )}
           </div>
-        )}
+          {renderModals()}
+        </div>
+      );
+    }
 
-        {relevantCards.map((card, idx) => {
-          const isCompleted = isStageCompleted(currentStage, card.stage);
-          // If completed, maybe dim it or change the button?
-          // For now, let's keep them accessible but style differently if needed.
-          // Actually user wants to see "Completed" status maybe?
+    // Render estimates grouped by estimate ID
+    return (
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+        {estimates.map((estimate, estimateIdx) => {
+          const cards = workflowService.getRecentCards(estimate.id, userRole);
 
           return (
-            <div key={card.id} className="bg-[#1E1B24] border border-[#3A3A4A] p-6 rounded-[2rem] flex flex-col md:flex-row items-start md:items-center justify-between gap-6 group hover:border-[#fafa33]/20 transition-all">
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-[#F5F7FA] font-rubik mb-2">{card.title}</h3>
-                <p className="text-sm text-[#A0AEC0] leading-relaxed max-w-xl">{card.description}</p>
-
-                {/* Stats Grid */}
-                <div className="flex items-center space-x-8 mt-5">
-                  {card.stats.map((stat, sIdx) => (
-                    <div key={sIdx} className="flex flex-col">
-                      <span className="text-[10px] text-[#5A5A6A] font-black uppercase tracking-widest mb-1">{stat.label}</span>
-                      <span className="text-sm font-bold text-[#F5F7FA]">{stat.value}</span>
-                      {sIdx < card.stats.length - 1 && <div className="h-full w-[1px] bg-red-500"></div>}
-                    </div>
-                  ))}
+            <div key={estimate.id} className="space-y-4">
+              {/* Estimate Header */}
+              <div className="flex items-center justify-between px-2">
+                <div>
+                  <h3 className="text-sm font-black text-[#A0AEC0] uppercase tracking-[0.3em] font-rubik">
+                    {estimate.service_required || 'Interior Project'}
+                  </h3>
+                  <p className="text-[10px] text-[#5A5A6A] mt-1 font-bold">
+                    ID: <span className="text-[#fafa33]/60">{estimate.id}</span>
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#782e87] animate-pulse"></span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#782e87]">
+                    {estimate.current_phase.replace(/_/g, ' ')}
+                  </span>
                 </div>
               </div>
 
-              <div className="flex flex-col items-end space-y-4 min-w-[140px]">
-                <span className={`text-[10px] font-black uppercase px-3 py-1.5 rounded-lg tracking-wider ${isCompleted ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-[#fafa33]/10 text-[#fafa33] border border-[#fafa33]/20'
-                  }`}>
-                  {isCompleted ? 'Completed' : card.statusLabel}
-                </span>
+              {/* Workflow Cards */}
+              <div className="space-y-3">
+                {cards.map((card, cardIdx) => {
+                  const isActive = cardIdx === 0; // Latest card is active
+                  const isCompleted = card.status === 'completed' || card.status === 'approved' || card.status === 'paid';
 
-                <button
-                  onClick={card.onAction}
-                  className="flex items-center space-x-2 bg-[#782e87] hover:bg-[#9d3cb0] text-white px-6 py-3 rounded-xl text-xs font-bold transition-all shadow-lg shadow-[#782e87]/20 active:scale-95"
-                >
-                  <span>{isCompleted ? 'View Details' : card.actionLabel}</span>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
+                  // Add action handlers based on phase
+                  const cardWithAction = {
+                    ...card,
+                    onAction: () => {
+                      // Pass current estimate to temporary global state for modals to access
+                      (window as any)._activeEstimate = estimate;
+                      (window as any)._activeOpportunity = card.metadata.opportunity;
+
+                      switch (card.action) {
+                        case 'Create Estimate':
+                        case 'Review Estimate':
+                        case 'Upload':
+                        case 'View Estimate':
+                          setEstimateModalOpen(true);
+                          break;
+                        case 'Review Design':
+                        case 'View Design':
+                          setDesignModalOpen(true);
+                          break;
+                        case 'Pay':
+                          setPaymentModalOpen(true);
+                          break;
+                        case 'View':
+                          if (card.phase === EstimatePhase.DESIGN) setDesignModalOpen(true);
+                          else if (card.phase === EstimatePhase.ESTIMATE_REVIEW) setEstimateModalOpen(true);
+                          else setPaymentModalOpen(true);
+                          break;
+                        default:
+                          console.log('Action handler for:', card.action);
+                      }
+                    }
+                  };
+
+                  // Use the HorizontalCard component
+                  return (
+                    <HorizontalCard
+                      key={card.id}
+                      card={cardWithAction}
+                      isActive={isActive}
+                      isCompleted={isCompleted}
+                    />
+                  );
+                })}
               </div>
+
+              {/* Divider between estimates */}
+              {estimateIdx < estimates.length - 1 && (
+                <div className="border-t border-[#4A4A5A]/30 my-8"></div>
+              )}
             </div>
           );
         })}
@@ -595,59 +588,87 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
     );
   };
 
-  // Demo State for sequential workflow
-  const [demoStage, setDemoStage] = useState<ProjectStage>(ProjectStage.LEAD_COLLECTED);
+  // Modals for workflow actions
+  function renderModals() {
+    const activeEstimate = (window as any)._activeEstimate;
+    const activeOpportunity = (window as any)._activeOpportunity;
 
-  const renderModals = () => (
-    <>
-      <EstimateModal
-        isOpen={isEstimateModalOpen}
-        onClose={() => setEstimateModalOpen(false)}
-        currentStage={demoStage}
-        userRole="client"
-        onApprove={() => {
-          setEstimateModalOpen(false);
-          setDemoStage(ProjectStage.DESIGN_PHASE);
-        }}
-        opportunity={data?.opportunities?.[0] || {
-          id: "OPP-MOCK",
-          phone_number: "9876543210",
-          status: demoStage,
-          date_requested: "2023-10-10",
-          date_prepared: "", date_approved: "", booking_amount: 0, paid_amount: 0, payment_due: 0, estimate_views: "", my_doc_id: ""
-        }}
-        onUpdate={() => {
-          // Transition from Lead Collection -> Estimate Provided
-          setDemoStage(ProjectStage.ESTIMATE_PROVIDED);
-        }}
-      />
-      <DesignModal
-        isOpen={isDesignModalOpen}
-        onClose={() => setDesignModalOpen(false)}
-        onApprove={() => {
-          setDesignModalOpen(false);
-          setDemoStage(ProjectStage.BOOKING_PAYMENT);
-        }}
-        onRequestRevisions={(specs) => {
-          console.log("Revisions:", specs);
-        }}
-      />
-      <PaymentModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setPaymentModalOpen(false)}
-        onPaymentSuccess={() => {
-          setPaymentModalOpen(false);
-          setDemoStage(ProjectStage.PROJECT_STARTED);
-        }}
-      />
-    </>
-  );
+    return (
+      <>
+        <EstimateModal
+          isOpen={isEstimateModalOpen}
+          onClose={() => setEstimateModalOpen(false)}
+          opportunity={activeOpportunity}
+          currentUserPhone={currentUser?.phoneNumber}
+          userRole={userRole as 'admin' | 'client'}
+          onApprove={async () => {
+            if (!activeEstimate) return;
+            const tid = toast.loading('Booking project...');
+            try {
+              await workflowService.transitionToNextPhase(activeEstimate.id, activeEstimate.phone_number, EstimatePhase.DESIGN, 'pending');
+              setEstimateModalOpen(false);
+              toast.success('Project Booked! Moving to Design.', { id: tid });
+              if (onRefresh) onRefresh();
+            } catch (e) {
+              toast.error('Booking failed.', { id: tid });
+            }
+          }}
+          onUpdate={() => {
+            setEstimateModalOpen(false);
+            if (onRefresh) onRefresh();
+          }}
+        />
+        <DesignModal
+          isOpen={isDesignModalOpen}
+          onClose={() => setDesignModalOpen(false)}
+          onApprove={async () => {
+            if (!activeEstimate) return;
+            const tid = toast.loading('Approving design...');
+            try {
+              await workflowService.transitionToNextPhase(activeEstimate.id, activeEstimate.phone_number, EstimatePhase.BOOKING, 'pending');
+              setDesignModalOpen(false);
+              toast.success('Design Approved! Transitioning to Booking.', { id: tid });
+              if (onRefresh) onRefresh();
+            } catch (e) {
+              toast.error('Approval failed.', { id: tid });
+            }
+          }}
+          onRequestRevisions={(specs) => {
+            console.log("Revisions:", specs);
+            setDesignModalOpen(false);
+            toast.success("Revision request sent.");
+          }}
+        />
+        <PaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setPaymentModalOpen(false)}
+          onPaymentSuccess={async () => {
+            if (!activeEstimate) return;
+            const tid = toast.loading('Confirming payment...');
+            try {
+              let nextPhase = activeEstimate.current_phase;
+              if (activeEstimate.current_phase === EstimatePhase.BOOKING) nextPhase = EstimatePhase.SHIPPING;
+              else if (activeEstimate.current_phase === EstimatePhase.SHIPPING) nextPhase = EstimatePhase.INSTALLATION;
+              else if (activeEstimate.current_phase === EstimatePhase.POST_INSTALLATION_PAYMENT) nextPhase = EstimatePhase.COMPLETED;
+
+              await workflowService.transitionToNextPhase(activeEstimate.id, activeEstimate.phone_number, nextPhase, 'paid');
+              setPaymentModalOpen(false);
+              toast.success('Payment Received!', { id: tid });
+              if (onRefresh) onRefresh();
+            } catch (e) {
+              toast.error('Payment sync failed.', { id: tid });
+            }
+          }}
+        />
+      </>
+    );
+  };
 
   return (
     <>
       {(() => {
         switch (type) {
-          case 'Recents': return renderRecents(demoStage);
+          case 'Recents': return renderRecents();
           case 'Consultation': return renderConsultation();
           case 'Payments': return renderPayments();
           case 'My Documents': return renderDocuments();
@@ -658,6 +679,7 @@ const SegmentContent: React.FC<SegmentContentProps> = ({ type }) => {
       })()}
       {renderModals()}
     </>
+
   );
 };
 

@@ -1,20 +1,32 @@
 import React from 'react';
 import { Opportunity, User, ProjectStage } from '../../types';
+import { workflowService } from '../../services/workflowService';
+import * as api from '../../services/api';
 import toast from 'react-hot-toast';
-import { mockStore } from '../../services/mockStore';
 
 interface EstimateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onApprove: () => void;
-  opportunity: Opportunity | null;
-  userRole: 'admin' | 'client' | 'architect';
-  onUpdate: () => void;
+  onApprove?: () => void;
+  onUpdate?: () => void;
   myDocuments?: any[];
+  userRole?: 'admin' | 'client';
+  currentUserPhone?: string;
+  opportunity?: Opportunity | null;
   currentStage?: ProjectStage;
 }
 
-const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprove, opportunity, userRole, onUpdate, myDocuments, currentStage }) => {
+const EstimateModal: React.FC<EstimateModalProps> = ({
+  isOpen,
+  onClose,
+  onApprove,
+  opportunity,
+  userRole = 'client',
+  onUpdate,
+  myDocuments = [],
+  currentStage,
+  currentUserPhone
+}) => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showRevisionInput, setShowRevisionInput] = React.useState(false);
   const [revisionText, setRevisionText] = React.useState('');
@@ -23,7 +35,7 @@ const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprov
     city: '',
     property_type: 'Residential',
     bhk: '2BHK',
-    square_feat: '',
+    square_feet: '',
     layout_url: '',
     wiring_done: 'No',
     possession_status: 'Ready to Move',
@@ -38,7 +50,7 @@ const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprov
 
   if (!isOpen) return null;
 
-  const currentStatus = currentStage || (mockStore.getClientState(opportunity?.phone_number || '').status as any) || opportunity?.status;
+  const currentStatus = currentStage || opportunity?.status;
   const isLeadCollected = currentStatus === ProjectStage.LEAD_COLLECTED || !opportunity;
   const isEstimateReady = currentStatus === 'Estimate ready' || currentStatus === ProjectStage.ESTIMATE_PROVIDED;
   const isAdmin = userRole === 'admin';
@@ -46,31 +58,37 @@ const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprov
   const handleSubmitDetails = async (e: React.FormEvent) => {
     e.preventDefault();
     // Bypass validation for demo/frontend-only flow
-    const phone = opportunity?.phone_number || 'DEMO_USER';
+    const phone = opportunity?.phone_number || currentUserPhone || 'DEMO_USER';
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      if (opportunity?.phone_number) {
-        mockStore.submitDetails(phone, formData);
+    try {
+      if (phone !== 'DEMO_USER') {
+        await workflowService.createEstimateRequest(phone, formData);
+        toast.success(opportunity ? 'Details submitted successfully!' : 'Estimate request created!');
+        onClose();
+        if (onUpdate) onUpdate();
       }
-      toast.success('Details submitted successfully!');
+    } catch (e) {
+      toast.error('Failed to submit details.');
+    } finally {
       setIsSubmitting(false);
-      onClose();
-      // Trigger update if provided
-      if (onUpdate) onUpdate();
-    }, 500);
+    }
   };
 
   const handleAdminUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!opportunity?.phone_number) return;
     setIsSubmitting(true);
-    setTimeout(() => {
-      mockStore.addDocument(opportunity.phone_number, adminDoc.url);
+    try {
+      await api.adminUploadEstimate(opportunity.phone_number, adminDoc.url, adminDoc.subject, adminDoc.description);
       toast.success('Estimate uploaded successfully!');
-      setIsSubmitting(false);
       onClose();
-    }, 500);
+      if (onUpdate) onUpdate();
+    } catch (e) {
+      toast.error('Upload failed.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSuggestChanges = () => {
@@ -78,7 +96,6 @@ const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprov
       toast.error("Please enter specific changes needed.");
       return;
     }
-    mockStore.requestChanges(opportunity?.phone_number || '', revisionText);
     toast.success('Revision request sent.');
     onClose();
   };
@@ -120,7 +137,7 @@ const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprov
                 <div><label className="text-[10px] font-black text-[#A0AEC0] uppercase tracking-widest ml-1">City</label><input required className="w-full bg-[#24212b] border border-[#4A4A5A] rounded-xl px-4 py-3 text-sm text-[#F5F7FA] focus:border-[#fafa33] outline-none" value={formData.city} onChange={e => setFormData(p => ({ ...p, city: e.target.value }))} /></div>
                 <div className="grid grid-cols-2 gap-3">
                   <div><label className="text-[10px] font-black text-[#A0AEC0] uppercase tracking-widest ml-1">BHK</label><select className="w-full bg-[#24212b] border border-[#4A4A5A] rounded-xl px-4 py-3 text-sm text-[#F5F7FA] focus:border-[#fafa33] outline-none" value={formData.bhk} onChange={e => setFormData(p => ({ ...p, bhk: e.target.value }))} ><option>2BHK</option><option>3BHK</option></select></div>
-                  <div><label className="text-[10px] font-black text-[#A0AEC0] uppercase tracking-widest ml-1">Sq Ft</label><input required type="number" className="w-full bg-[#24212b] border border-[#4A4A5A] rounded-xl px-4 py-3 text-sm text-[#F5F7FA] focus:border-[#fafa33] outline-none" value={formData.square_feat} onChange={e => setFormData(p => ({ ...p, square_feat: e.target.value }))} /></div>
+                  <div><label className="text-[10px] font-black text-[#A0AEC0] uppercase tracking-widest ml-1">Sq Ft</label><input required type="number" className="w-full bg-[#24212b] border border-[#4A4A5A] rounded-xl px-4 py-3 text-sm text-[#F5F7FA] focus:border-[#fafa33] outline-none" value={formData.square_feet} onChange={e => setFormData(p => ({ ...p, square_feet: e.target.value }))} /></div>
                 </div>
               </div>
               <button type="submit" disabled={isSubmitting} className="w-full bg-[#fafa33] text-[#24212b] py-4 rounded-xl text-sm font-black hover:bg-[#ffff4d] transition-all disabled:opacity-50 mt-4">{isSubmitting ? 'Processing...' : 'Submit Details'}</button>
@@ -168,7 +185,7 @@ const EstimateModal: React.FC<EstimateModalProps> = ({ isOpen, onClose, onApprov
               <button onClick={onClose} className="flex-1 py-4 rounded-2xl border border-[#4A4A5A] text-[#A0AEC0] font-bold hover:text-white hover:border-[#A0AEC0] transition-all bg-transparent">
                 Later
               </button>
-              <button onClick={onApprove} className="flex-1 py-4 rounded-2xl bg-[#fafa33] text-[#24212b] font-black hover:bg-[#ffff4d] shadow-lg shadow-[#fafa33]/10 transition-all">
+              <button onClick={() => onApprove?.()} className="flex-1 py-4 rounded-2xl bg-[#fafa33] text-[#24212b] font-black hover:bg-[#ffff4d] shadow-lg shadow-[#fafa33]/10 transition-all">
                 Confirm & Book
               </button>
             </div>
